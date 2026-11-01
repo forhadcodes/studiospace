@@ -148,14 +148,14 @@ function Navbar() {
                 Login
               </Link>
               <Link
-                href="/register"
+                href="/signup"
                 className={buttonVariants({
                   variant: "default",
                   className:
                     "hidden bg-red-600 text-white hover:bg-red-600/90 sm:inline-flex",
                 })}
               >
-                Register
+                Sign Up
               </Link>
             </>
           )}
@@ -208,14 +208,14 @@ function Navbar() {
                 <SheetClose
                   render={
                     <Link
-                      href="/register"
+                      href="/signup"
                       className={buttonVariants({
                         className: "w-full bg-red-600 text-white hover:bg-red-600/90",
                       })}
                     />
                   }
                 >
-                  Register
+                  Sign Up
                 </SheetClose>
               </div>
             </SheetContent>
