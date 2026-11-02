@@ -73,8 +73,8 @@ export type UpdateStudioPayload = {
   address: string;
   maxCapacity: number;
   image: string;
-  gallery: string;
-  amenities: string;
+  gallery: string[];
+  amenities: string[];
   overview: string;
 };
 
@@ -85,8 +85,6 @@ type EditStudioExploreProps = {
 };
 
 /* ---------- helpers ---------- */
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:5000";
 
 const FIELD_CLASS = "h-10 text-sm";
 const SELECT_FIELD_CLASS = "h-10 w-full text-sm";
@@ -251,17 +249,17 @@ const EditStudioExplore = ({ studio, onSaved }: EditStudioExploreProps) => {
       address: values.address.trim(),
       maxCapacity: Number(values.maxCapacity),
       image: values.image.trim(),
-      // Backend stores these as comma-separated strings, so send strings.
-      gallery: toList(values.gallery).join(", "),
-      amenities: toList(values.amenities).join(", "),
+      // Backend stores these as arrays (validated by src/lib/studios.ts).
+      gallery: toList(values.gallery),
+      amenities: toList(values.amenities),
       overview: values.overview.trim(),
     };
 
     setSubmitting(true);
     try {
-      // _id goes only in the URL; the body has every other field.
-      const res = await fetch(`${API_URL}/studio-explore/${studio._id}`, {
-        method: "PATCH",
+      // PUT /api/studios/:id — _id goes only in the URL; the body has every other field.
+      const res = await fetch(`/api/studios/${studio._id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });

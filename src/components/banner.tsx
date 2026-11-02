@@ -149,7 +149,16 @@ function Banner() {
       </Swiper>
 
       {/* Feature checklist overlay (shared across slides) */}
-      
+      <ul className="pointer-events-none absolute top-24 left-6 z-10 hidden max-w-7xl flex-col gap-3 sm:top-28 md:left-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))] lg:flex">
+        {features.map(({ icon: Icon, label }) => (
+          <li key={label} className="flex items-center gap-3">
+            <span className="grid size-6 shrink-0 place-items-center rounded-md bg-red-600 text-white">
+              <Icon className="size-3.5" />
+            </span>
+            <span className="text-sm font-medium text-white">{label}</span>
+          </li>
+        ))}
+      </ul>
 
       {/* Prev / next controls */}
       <div className="absolute right-6 bottom-24 z-10 hidden gap-2 lg:flex">

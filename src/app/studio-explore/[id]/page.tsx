@@ -19,9 +19,9 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import EditStudioExplore from "@/components/EditStudioExplore";
 import DeleteStudioDialog from "@/components/DeleteStudioDialog";
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:5000";
 
 /* ---------- Types ---------- */
+// Flat shape this page renders (matching what the edit/delete dialogs expect).
 interface Studio {
   _id: string;
   title: string;
@@ -32,29 +32,50 @@ interface Studio {
   securityDeposit: string | number;
   maxCapacity: string | number;
   image: string;
-  gallery?: string | string[];
-  amenities?: string | string[];
+  gallery?: string[];
+  amenities?: string[];
   overview: string;
   rating?: number;
   reviewCount?: number;
 }
 
+// Raw shape returned by GET /api/studios/:id (see src/lib/studios.ts).
+interface ApiStudio {
+  slug: string;
+  title: string;
+  category: string;
+  hourlyRate: number;
+  securityDeposit: number;
+  maxCapacity: number;
+  location: { address: string; city: string };
+  image: string;
+  gallery: string[];
+  amenities: string[];
+  overview: string;
+  rating: number;
+  reviewCount: number;
+}
+
 /* ---------- Helpers ---------- */
-// amenities can be an array, a plain "A, B" string, or an old '["A","B"]' string -> string[]
-function parseAmenities(raw?: string | string[] | null): string[] {
-  if (!raw) return [];
 
-  if (Array.isArray(raw)) {
-    return raw.map((a) => String(a).trim()).filter(Boolean);
-  }
-
-  if (typeof raw !== "string") return [];
-
-  return raw
-    .replace(/[\[\]\\"]/g, "")
-    .split(",")
-    .map((a) => a.trim())
-    .filter(Boolean);
+// Flatten the API studio (nested location, slug id) into this page's shape.
+function normalizeStudio(studio: ApiStudio): Studio {
+  return {
+    _id: studio.slug,
+    title: studio.title,
+    category: studio.category,
+    address: studio.location?.address ?? "",
+    city: studio.location?.city ?? "",
+    hourlyRate: studio.hourlyRate,
+    securityDeposit: studio.securityDeposit,
+    maxCapacity: studio.maxCapacity,
+    image: studio.image,
+    gallery: Array.isArray(studio.gallery) ? studio.gallery : [],
+    amenities: Array.isArray(studio.amenities) ? studio.amenities : [],
+    overview: studio.overview,
+    rating: studio.rating,
+    reviewCount: studio.reviewCount,
+  };
 }
 
 // "photo-studio" -> "Photo Studio"
@@ -65,6 +86,15 @@ function formatCategory(cat: string): string {
     .join(" ");
 }
 
+async function fetchStudio(id: string): Promise<Studio | null> {
+  const res = await fetch(`/api/studios/${id}`, { cache: "no-store" });
+  if (!res.ok) {
+    return null;
+  }
+  const data = (await res.json()) as { studio: ApiStudio };
+  return data.studio ? normalizeStudio(data.studio) : null;
+}
+
 /* ---------- Page ---------- */
 export default function StudioDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -73,24 +103,16 @@ export default function StudioDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
 
-  /* ---------- GET /studio-explore/:id ---------- */
+  /* ---------- GET /api/studios/:id ---------- */
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       try {
-        const res = await fetch(`${API_URL}/studio-explore/${id}`, {
-          cache: "no-store",
-        });
-        if (!res.ok) {
-          console.error("Studio fetch failed:", res.status, await res.text());
-          if (!cancelled) setFailed(true);
-          return;
-        }
-        const data: Studio = await res.json();
+        const data = await fetchStudio(id);
         if (!cancelled) {
           setStudio(data);
-          setFailed(false);
+          setFailed(!data);
         }
       } catch (err) {
         console.error(err);
@@ -108,16 +130,8 @@ export default function StudioDetailsPage() {
 
   /* ---------- Refresh after a successful edit (used as onSaved) ---------- */
   async function refreshStudio() {
-    try {
-      const res = await fetch(`${API_URL}/studio-explore/${id}`, {
-        cache: "no-store",
-      });
-      if (!res.ok) return;
-      const data: Studio = await res.json();
-      setStudio(data);
-    } catch (err) {
-      console.error(err);
-    }
+    const data = await fetchStudio(id);
+    if (data) setStudio(data);
   }
 
   /* ---------- Loading state ---------- */
@@ -159,7 +173,7 @@ export default function StudioDetailsPage() {
     );
   }
 
-  const amenities = parseAmenities(studio.amenities);
+  const amenities = Array.isArray(studio.amenities) ? studio.amenities : [];
   const rating = studio.rating ? Number(studio.rating) : 0;
   const reviewCount = studio.reviewCount ? Number(studio.reviewCount) : 0;
 

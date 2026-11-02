@@ -18,18 +18,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:5000";
-
 const DeleteStudioDialog = () => {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
 
-  /* ---------- DELETE /studio-explore/:id ---------- */
+  /* ---------- DELETE /api/studios/:id ---------- */
   async function handleDelete() {
     setDeleting(true);
     try {
-      const res = await fetch(`${API_URL}/studio-explore/${id}`, {
+      const res = await fetch(`/api/studios/${id}`, {
         method: "DELETE",
       });
 

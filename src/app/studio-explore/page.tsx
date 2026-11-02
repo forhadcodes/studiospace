@@ -1,70 +1,8 @@
+import { connection } from "next/server";
 import Link from "next/link";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:5000";
-
-/* ---------- Types ---------- */
-interface Studio {
-  _id: string;
-  title: string;
-  category: string;
-  address: string;
-  city: string;
-  hourlyRate: string | number;
-  securityDeposit: string | number;
-  maxCapacity: string | number;
-  image: string;
-  gallery?: string | string[];
-  amenities?: string | string[];
-  overview: string;
-}
-
-/* ---------- Helpers ---------- */
-async function getStudios(): Promise<Studio[]> {
-  try {
-    const res = await fetch(`${API_URL}/studio-explore`, {
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error(`Failed to fetch studios (${res.status})`);
-    const data: Studio[] = await res.json();
-    if (!Array.isArray(data)) return [];
-
-    // skip incomplete documents
-    return data.filter(
-      (s) =>
-        s.title?.trim() &&
-        s.image?.trim() &&
-        s.hourlyRate !== undefined &&
-        s.hourlyRate !== "",
-    );
-  } catch (err) {
-    console.error(err);
-    return [];
-  }
-}
-
-// amenities can be an array, a plain "A, B" string, or an old '["A","B"]' string -> string[]
-function parseAmenities(raw?: string | string[] | null): string[] {
-  if (!raw) return [];
-
-  if (Array.isArray(raw)) {
-    return raw.map((a) => String(a).trim()).filter(Boolean);
-  }
-
-  return String(raw)
-    .replace(/[\[\]\\"]/g, "")
-    .split(",")
-    .map((a) => a.trim())
-    .filter(Boolean);
-}
-
-// "photo-studio" -> "Photo Studio"
-function formatCategory(cat?: string): string {
-  if (!cat) return "";
-  return cat
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
+import { categoryLabel } from "@/lib/constants";
+import { listStudios, type Studio } from "@/lib/studios";
 
 /* ---------- Icons (no package needed) ---------- */
 const IconPin = () => (
@@ -87,7 +25,7 @@ const IconShield = () => (
 
 /* ---------- Card ---------- */
 function StudioCard({ studio }: { studio: Studio }) {
-  const amenities = parseAmenities(studio.amenities);
+  const amenities = Array.isArray(studio.amenities) ? studio.amenities : [];
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-2xl bg-white p-4 shadow-sm transition hover:shadow-lg">
@@ -100,7 +38,7 @@ function StudioCard({ studio }: { studio: Studio }) {
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
         />
         <span className="absolute left-3 top-3 rounded-md bg-black/70 px-2.5 py-1 text-xs font-medium text-white backdrop-blur">
-          {formatCategory(studio.category)}
+          {categoryLabel(studio.category)}
         </span>
       </div>
 
@@ -134,33 +72,33 @@ function StudioCard({ studio }: { studio: Studio }) {
         <div className="mt-4 flex items-center justify-between gap-2 border-y border-gray-200 py-3 text-xs text-gray-600">
           <span className="flex items-center gap-1.5">
             <IconPin />
-            {studio.city}
+            {studio.location.city}
           </span>
           <span className="flex items-center gap-1.5">
             <IconUsers />
-            Up to {Number(studio.maxCapacity)}
+            Up to {studio.maxCapacity}
           </span>
           <span className="flex items-center gap-1.5">
-            <IconShield />${Number(studio.securityDeposit)} deposit
+            <IconShield />${studio.securityDeposit} deposit
           </span>
         </div>
 
         {/* Price + actions */}
         <div className="mt-auto flex items-center justify-between gap-3 pt-4">
           <p className="text-3xl font-semibold text-gray-900">
-            ${Number(studio.hourlyRate)}
+            ${studio.hourlyRate}
             <span className="ml-1 text-sm font-normal text-gray-500">/ Hour</span>
           </p>
 
           <div className="flex gap-2">
             <Link
-              href={`/studio-explore/${studio._id}`}
+              href={`/studio-explore/${studio.slug}`}
               className="rounded-md border border-red-600 px-3 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50"
             >
               Room Detail
             </Link>
             <Link
-              href={`/studio-explore/${studio._id}`}
+              href={`/studio-explore/${studio.slug}`}
               className="rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-red-700"
             >
               Book Now
@@ -174,7 +112,10 @@ function StudioCard({ studio }: { studio: Studio }) {
 
 /* ---------- Page ---------- */
 const StudioExplorePage = async () => {
-  const studios = await getStudios();
+  // Opt out of prerendering so the studio list is fetched fresh per request.
+  await connection();
+
+  const { studios, total } = await listStudios({ page: 1, limit: 48 });
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -193,7 +134,7 @@ const StudioExplorePage = async () => {
         {studios.length > 0 ? (
           <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {studios.map((studio) => (
-              <StudioCard key={studio._id} studio={studio} />
+              <StudioCard key={studio.slug} studio={studio} />
             ))}
           </div>
         ) : (
