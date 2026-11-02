@@ -5,20 +5,17 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   ArrowLeftIcon,
-  ArrowRightIcon,
   BadgeCheckIcon,
-  ClockIcon,
   LoaderCircleIcon,
   MapPinIcon,
-  ShieldCheckIcon,
   StarIcon,
   UsersIcon,
-  ZapIcon,
 } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import EditStudioExplore from "@/components/EditStudioExplore";
 import DeleteStudioDialog from "@/components/DeleteStudioDialog";
+import BookingCard from "@/components/booking/BookingCard";
 
 /* ---------- Types ---------- */
 // Flat shape this page renders (matching what the edit/delete dialogs expect).
@@ -276,61 +273,7 @@ export default function StudioDetailsPage() {
           </div>
 
           {/* Right column: booking summary card */}
-          <aside>
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm lg:sticky lg:top-24">
-              <p className="text-xs font-medium text-gray-500">Starting from</p>
-              <p className="mt-1 text-4xl font-semibold text-gray-900">
-                ${Number(studio.hourlyRate)}
-                <span className="ml-1 text-sm font-normal text-gray-500">
-                  / hour
-                </span>
-              </p>
-
-              {Number(studio.securityDeposit) > 0 && (
-                <p className="mt-2 text-xs text-gray-500">
-                  + ${Number(studio.securityDeposit)} refundable security deposit
-                </p>
-              )}
-
-              <div className="mt-6 border-t border-gray-200 pt-6">
-                <p className="flex items-center gap-2 text-sm text-gray-600">
-                  <UsersIcon className="h-4 w-4 text-red-600" />
-                  Max capacity {Number(studio.maxCapacity)} guests
-                </p>
-                <p className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-                  <MapPinIcon className="h-4 w-4 text-red-600" />
-                  {studio.city}
-                </p>
-              </div>
-
-              <Link
-                href={`/booking/${studio._id || id}`}
-                className={buttonVariants({
-                  className:
-                    "mt-6 w-full bg-red-600 text-white hover:bg-red-600/90",
-                })}
-              >
-                Book Now
-                <ArrowRightIcon data-icon="inline-end" />
-              </Link>
-
-              {/* Booking benefits */}
-              <ul className="mt-5 space-y-2.5 text-sm text-gray-600">
-                <li className="flex items-center gap-2">
-                  <ClockIcon className="h-4 w-4 text-gray-400" />
-                  Free cancellation for 24 hours
-                </li>
-                <li className="flex items-center gap-2">
-                  <ShieldCheckIcon className="h-4 w-4 text-gray-400" />
-                  Secure payment & deposit protection
-                </li>
-                <li className="flex items-center gap-2">
-                  <ZapIcon className="h-4 w-4 text-gray-400" />
-                  Instant confirmation
-                </li>
-              </ul>
-            </div>
-          </aside>
+          <BookingCard studio={studio} />
         </div>
       </section>
     </main>
