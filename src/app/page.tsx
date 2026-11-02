@@ -6,10 +6,8 @@ import {
   FeaturedStudios,
   FeaturedStudiosSkeleton,
 } from "@/components/featured-studios";
-import { Footer } from "@/components/footer";
 import { HostGuarantee } from "@/components/host-guarantee";
 import { BookingSteps } from "@/components/booking-steps";
-import { Navbar } from "@/components/navbar";
 
 export default function Home() {
   return (

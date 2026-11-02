@@ -135,7 +135,7 @@ function Banner() {
                       href="/studio-explore"
                       className={buttonVariants({
                         className:
-                          "h-11 rounded-lg bg-white px-6 text-base text-neutral-900 hover:bg-white/85",
+                          "h-11 rounded-lg bg-black/20 px-6 text-base text-neutral-900 hover:bg-black/85",
                       })}
                     >
                       Host Your Space

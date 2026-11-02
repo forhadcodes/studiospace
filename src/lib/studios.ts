@@ -54,6 +54,8 @@ export type ListParams = {
   category?: string
   minPrice?: number
   maxPrice?: number
+  /** Private-route filter: only studios owned by this user (ownerEmail match). */
+  ownerEmail?: string
   sort?: "newest" | "price-asc" | "price-desc" | "rating"
   featured?: boolean
   page: number
@@ -174,6 +176,9 @@ function inMemoryList(params: ListParams): ListResult {
   if (params.maxPrice !== undefined) {
     list = list.filter((s) => s.hourlyRate <= params.maxPrice!)
   }
+  if (params.ownerEmail) {
+    list = list.filter((s) => s.ownerEmail === params.ownerEmail)
+  }
 
   switch (params.sort) {
     case "price-asc":
@@ -216,6 +221,9 @@ export async function listStudios(params: ListParams): Promise<ListResult> {
     }
     if (params.maxPrice !== undefined) {
       filter.hourlyRate = { ...(filter.hourlyRate as object), $lte: params.maxPrice }
+    }
+    if (params.ownerEmail) {
+      filter.ownerEmail = params.ownerEmail
     }
 
     const sort: Document =
@@ -341,9 +349,16 @@ export async function updateStudio(
       ? { _id: new ObjectId(idOrSlug) }
       : { slug: idOrSlug }
 
+    // Documents store the street address and city inside the nested
+    // `location` object, so those two patch fields must map to dot paths.
+    const { address, city, ...rest } = patch
+    const set: Document = { ...rest, updatedAt: new Date() }
+    if (address !== undefined) set["location.address"] = address
+    if (city !== undefined) set["location.city"] = city
+
     const doc = await collection.findOneAndUpdate(
       filter,
-      { $set: { ...patch, updatedAt: new Date() } },
+      { $set: set },
       { returnDocument: "after" }
     )
     return doc ? docToStudio(doc) : null

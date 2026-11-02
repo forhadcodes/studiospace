@@ -59,6 +59,7 @@ export default function BookingCard({ studio }: BookingCardProps) {
       email: user?.email,
       ...studioFields,
       studioId,
+      status: "Pending",
       bookingDate: new Date().toISOString(),
       departureDate,
     };
@@ -133,7 +134,10 @@ export default function BookingCard({ studio }: BookingCardProps) {
           >
             {submitting ? (
               <>
-                <LoaderCircleIcon data-icon="inline-start" className="animate-spin" />
+                <LoaderCircleIcon
+                  data-icon="inline-start"
+                  className="animate-spin"
+                />
                 Booking…
               </>
             ) : (

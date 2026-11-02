@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 
+import { auth } from "@/lib/auth"
 import { isCategorySlug } from "@/lib/constants"
 import {
   createStudio,
@@ -31,6 +32,8 @@ export async function GET(request: NextRequest) {
     category: category && isCategorySlug(category) ? category : undefined,
     minPrice: parseNumber(searchParams.get("minPrice")),
     maxPrice: parseNumber(searchParams.get("maxPrice")),
+    // Private route support: /my-listings passes the logged-in user's email.
+    ownerEmail: searchParams.get("ownerEmail") ?? undefined,
     sort:
       sort === ("price-asc" as const) ||
       sort === ("price-desc" as const) ||
@@ -65,16 +68,23 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // TODO (Day 2 / plan section 5): owner fields must come from the JWT cookie,
-  // never from the request body. Until the auth bridge lands, fall back to the
-  // demo host identity so Phase 1 stays testable from Postman/curl.
-  const ownerFallback = {
-    ownerEmail:
-      process.env.DEMO_HOST_EMAIL ?? "examiner@studiospace.dev",
-    ownerName: "Forhad Hussain",
-  }
+  // The owner comes from the logged-in session cookie, never the request
+  // body. Falls back to the demo host identity so Phase 1 (auth-less
+  // testing from Postman/curl) keeps working.
+  const session = await auth.api.getSession({ headers: request.headers })
+  const owner = session?.user
+    ? {
+        ownerEmail: session.user.email,
+        ownerName: session.user.name ?? session.user.email,
+        ownerPhoto: session.user.image ?? undefined,
+      }
+    : {
+        ownerEmail:
+          process.env.DEMO_HOST_EMAIL ?? "examiner@studiospace.dev",
+        ownerName: "Forhad Hussain",
+      }
 
-  const studio = await createStudio(parsed.data, ownerFallback)
+  const studio = await createStudio(parsed.data, owner)
   if (!studio) {
     return NextResponse.json(
       { message: "Database not configured — set MONGODB_URI to enable writes." },

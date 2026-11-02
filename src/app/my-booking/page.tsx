@@ -2,23 +2,36 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { LoaderCircleIcon } from "lucide-react";
+import { LoaderCircleIcon, RefreshCwIcon } from "lucide-react";
 
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import MyBookingCard, {
   type Booking,
 } from "@/components/my-booking/MyBookingCard";
 
+/* ---------- Helpers ---------- */
+
+const DATE_KEY = "bookingDate";
+
+// Newest bookings first.
+function sortByNewest(a: Booking, b: Booking): number {
+  return (
+    new Date(b[DATE_KEY] ?? 0).getTime() - new Date(a[DATE_KEY] ?? 0).getTime()
+  );
+}
+
 /* ---------- Page ---------- */
 
 export default function MyBookingsPage() {
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending: sessionPending } = authClient.useSession();
   const user = session?.user;
 
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
+  // Bumped by the retry button on the error screen to re-run the fetch.
+  const [refreshToken, setRefreshToken] = useState(0);
 
   /* ---------- GET /booking?email=... ---------- */
   const email = user?.email;
@@ -28,37 +41,44 @@ export default function MyBookingsPage() {
 
     let cancelled = false;
 
-    async function load() {
+    const load = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/booking?email=${encodeURIComponent(email!)}`,
+          `http://localhost:5000/booking?email=${encodeURIComponent(email)}`,
           { cache: "no-store" },
         );
         const data: Booking[] = res.ok ? await res.json() : [];
-        if (!cancelled) {
-          setBookings(Array.isArray(data) ? data : []);
-          setFailed(!res.ok);
-        }
+
+        if (cancelled) return;
+
+        setBookings(Array.isArray(data) ? data.sort(sortByNewest) : []);
+        setFailed(!res.ok);
       } catch (err) {
         console.error(err);
         if (!cancelled) setFailed(true);
       } finally {
         if (!cancelled) setLoading(false);
       }
-    }
+    };
 
     load();
     return () => {
       cancelled = true;
     };
-  }, [email]);
+  }, [email, refreshToken]);
 
-  function removeBooking(id: string) {
-    setBookings((prev) => prev.filter((b) => b._id !== id));
+  function retry() {
+    setRefreshToken((token) => token + 1);
   }
 
-  /* ---------- Loading state ---------- */
-  if (loading || !user) {
+  function updateBooking(id: string, patch: Partial<Booking>) {
+    setBookings((prev) =>
+      prev.map((b) => (b._id === id ? { ...b, ...patch } : b)),
+    );
+  }
+
+  /* ---------- Loading state (session resolving, or bookings fetching) ---------- */
+  if (sessionPending || (!!user && loading)) {
     return (
       <main className="flex min-h-[60vh] items-center justify-center bg-gray-50">
         <span className="flex items-center gap-3 text-sm text-gray-500">
@@ -69,7 +89,31 @@ export default function MyBookingsPage() {
     );
   }
 
-  /* ---------- Error state ---------- */
+  /* ---------- Not logged in ---------- */
+  if (!user) {
+    return (
+      <main className="min-h-screen bg-gray-50">
+        <div className="mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 lg:px-8">
+          <h1 className="text-3xl font-semibold text-gray-900">
+            Please log in
+          </h1>
+          <p className="mt-3 text-sm text-gray-500">
+            You need an account to view your bookings.
+          </p>
+          <Link
+            href="/login"
+            className={`${buttonVariants({
+              className: "mt-8",
+            })} bg-red-600 text-white hover:bg-red-600/90`}
+          >
+            Log in
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  /* ---------- API error state ---------- */
   if (failed) {
     return (
       <main className="min-h-screen bg-gray-50">
@@ -78,8 +122,16 @@ export default function MyBookingsPage() {
             Couldn&apos;t load bookings
           </h1>
           <p className="mt-3 text-sm text-gray-500">
-            The booking server may be down. Please try again later.
+            The booking server may be down. Please try again.
           </p>
+          <Button
+            variant="outline"
+            onClick={retry}
+            className="mt-8 text-red-600 hover:bg-red-50 hover:text-red-600"
+          >
+            <RefreshCwIcon data-icon="inline-start" />
+            Try again
+          </Button>
         </div>
       </main>
     );
@@ -95,7 +147,7 @@ export default function MyBookingsPage() {
           Manage and view your upcoming studio sessions
         </p>
 
-        <div className="mt-8 border-t border-gray-200 pt-8">
+        <div className="mt-8 space-y-5 border-t border-gray-200 pt-8">
           {bookings.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
               <h2 className="text-xl font-semibold text-gray-900">
@@ -115,15 +167,13 @@ export default function MyBookingsPage() {
               </Link>
             </div>
           ) : (
-            <div className="space-y-5">
-              {bookings.map((booking) => (
-                <MyBookingCard
-                  key={booking._id}
-                  booking={booking}
-                  onCanceled={removeBooking}
-                />
-              ))}
-            </div>
+            bookings.map((booking) => (
+              <MyBookingCard
+                key={booking._id}
+                booking={booking}
+                onUpdate={updateBooking}
+              />
+            ))
           )}
         </div>
       </section>

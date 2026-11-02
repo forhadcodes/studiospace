@@ -5,18 +5,18 @@ import { NewsletterForm } from "@/components/newsletter-form"
 
 const quickLinks = [
   { label: "Home", href: "/" },
-  { label: "Explore Studios", href: "/studios" },
-  { label: "How It Works", href: "#how-it-works" },
+  { label: "Explore Studios", href: "/studio-explore" },
+  { label: "How It Works", href: "/how-it-work" },
   { label: "About Us", href: "#about" },
   { label: "Contact", href: "#contact" },
 ]
 
 const categories = [
-  { label: "Photography Studios", href: "/studios?category=photography" },
-  { label: "Video & Film Studios", href: "/studios?category=video" },
-  { label: "Podcast Studios", href: "/studios?category=podcast" },
-  { label: "Recording Studios", href: "/studios?category=recording" },
-  { label: "Rehearsal Spaces", href: "/studios?category=rehearsal" },
+  { label: "Photography Studios", href: "/studio-explore" },
+  { label: "Video & Film Studios", href: "/studio-explore" },
+  { label: "Podcast Studios", href: "/studio-explore" },
+  { label: "Recording Studios", href: "/studio-explore" },
+  { label: "Rehearsal Spaces", href: "/studio-explore" },
 ]
 
 /** Official "X" logo (2023 rebrand) — do NOT use the old Twitter bird icon. */

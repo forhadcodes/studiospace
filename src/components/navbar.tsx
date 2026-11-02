@@ -40,7 +40,7 @@ const navLinks = [
   { label: "Explore Studios", href: "/studio-explore" },
   { label: "Add Studios", href: "/add-studio" },
   { label: "My-Booking", href: "/my-booking" },
-  { label: "How It Works", href: "#how-it-works" },
+  { label: "How It Works", href: "/how-it-work" },
   { label: "About Us", href: "#about" },
 ]
 
@@ -49,8 +49,7 @@ const menuItems = [
   { label: "Dashboard", href: "/", icon: LayoutDashboardIcon },
   { label: "Add New Studio", href: "/add-studio", icon: PlusSquareIcon },
   { label: "My Bookings", href: "/my-booking", icon: CalendarCheckIcon },
-  { label: "My Studio Listings", href: "/studio-explore", icon: ListIcon },
-  { label: "My Bookings", href: "/my-bookings", icon: CalendarCheckIcon },
+  { label: "My Studio Listings", href: "/my-listings", icon: ListIcon },
 ]
 
 function NavLink({ label, href }: (typeof navLinks)[number]) {
