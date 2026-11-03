@@ -101,16 +101,18 @@ export default function MyBookingCard({
     try {
       setCanceling(true);
 
-      const res = await fetch(`http://localhost:5000/booking/${booking._id}`, {
+      const res = await fetch(`/api/bookings/${booking._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "Cancelled" }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
-      if (res.ok && data.matchedCount > 0) {
+      if (res.ok && data?.matchedCount > 0) {
         toast.success("Booking cancelled.");
         onUpdate(booking._id, { status: "Cancelled" });
+      } else if (res.status === 401) {
+        toast.error("Please log in to cancel this booking.");
       } else {
         toast.error(
           data?.message ??

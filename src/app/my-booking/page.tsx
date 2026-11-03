@@ -21,6 +21,32 @@ function sortByNewest(a: Booking, b: Booking): number {
   );
 }
 
+const LOAD_ATTEMPTS = 3;
+const RETRY_DELAY_MS = 700;
+
+// Same-origin fetch with a couple of retries. In development a restarted or
+// still-compiling dev server can reject the first request with "Failed to
+// fetch"; retrying recovers without showing an error screen.
+async function fetchBookings(signal: AbortSignal): Promise<Response> {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= LOAD_ATTEMPTS; attempt++) {
+    try {
+      return await fetch("/api/bookings", { cache: "no-store", signal });
+    } catch (err) {
+      lastError = err;
+      if (signal.aborted) throw err;
+      if (attempt < LOAD_ATTEMPTS) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, RETRY_DELAY_MS * attempt),
+        );
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 /* ---------- Page ---------- */
 
 export default function MyBookingsPage() {
@@ -33,41 +59,50 @@ export default function MyBookingsPage() {
   // Bumped by the retry button on the error screen to re-run the fetch.
   const [refreshToken, setRefreshToken] = useState(0);
 
-  /* ---------- GET /booking?email=... ---------- */
+  /* ---------- GET /api/bookings ---------- */
   const email = user?.email;
 
   useEffect(() => {
     if (!email) return;
 
-    let cancelled = false;
+    const controller = new AbortController();
 
     const load = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:5000/booking?email=${encodeURIComponent(email)}`,
-          { cache: "no-store" },
+        const res = await fetchBookings(controller.signal);
+        const data = (await res.json().catch(() => null)) as {
+          bookings?: Booking[];
+        } | null;
+
+        if (controller.signal.aborted) return;
+
+        if (!res.ok) {
+          setFailed(true);
+          return;
+        }
+
+        setBookings(
+          Array.isArray(data?.bookings)
+            ? [...data.bookings].sort(sortByNewest)
+            : [],
         );
-        const data: Booking[] = res.ok ? await res.json() : [];
-
-        if (cancelled) return;
-
-        setBookings(Array.isArray(data) ? data.sort(sortByNewest) : []);
-        setFailed(!res.ok);
+        setFailed(false);
       } catch (err) {
-        console.error(err);
-        if (!cancelled) setFailed(true);
+        if (controller.signal.aborted) return;
+        console.warn("Could not load bookings:", err);
+        setFailed(true);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     load();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, [email, refreshToken]);
 
   function retry() {
+    setLoading(true);
+    setFailed(false);
     setRefreshToken((token) => token + 1);
   }
 
@@ -78,7 +113,7 @@ export default function MyBookingsPage() {
   }
 
   /* ---------- Loading state (session resolving, or bookings fetching) ---------- */
-  if (sessionPending || (!!user && loading)) {
+  if (sessionPending || (!!email && loading)) {
     return (
       <main className="flex min-h-[60vh] items-center justify-center bg-gray-50">
         <span className="flex items-center gap-3 text-sm text-gray-500">
@@ -122,7 +157,7 @@ export default function MyBookingsPage() {
             Couldn&apos;t load bookings
           </h1>
           <p className="mt-3 text-sm text-gray-500">
-            The booking server may be down. Please try again.
+            We couldn&apos;t reach the bookings service. Please try again.
           </p>
           <Button
             variant="outline"

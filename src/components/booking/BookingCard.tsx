@@ -39,44 +39,51 @@ interface BookingCardProps {
 export default function BookingCard({ studio }: BookingCardProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
 
   async function handleBooking(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
+    if (isPending) return;
+    if (!user) {
+      toast.error("Please log in to book a studio.");
+      router.push("/login");
+      return;
+    }
+
     const departureDate = new FormData(e.currentTarget).get(
       "departureDate",
     ) as string;
-    if (!departureDate) return;
+    if (!departureDate) {
+      toast.error("Please choose a shoot date.");
+      return;
+    }
 
     // Remove the studio's own _id (Mongo would store the booking under it,
     // causing duplicate-key errors) and keep the studio reference separately.
     const { _id: studioId, ...studioFields } = studio;
 
-    const data = {
-      username: user?.name,
-      email: user?.email,
-      ...studioFields,
-      studioId,
-      status: "Pending",
-      bookingDate: new Date().toISOString(),
-      departureDate,
-    };
-
     try {
       setSubmitting(true);
 
-      const res = await fetch("http://localhost:5000/booking", {
+      const res = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...studioFields,
+          studioId,
+          departureDate,
+        }),
       });
-      const bookingData = await res.json();
+      const bookingData = await res.json().catch(() => null);
 
-      if (res.ok && bookingData.acknowledged) {
+      if (res.ok) {
         toast.success("Booking successful!");
         router.push("/my-booking");
+      } else if (res.status === 401) {
+        toast.error("Please log in to book a studio.");
+        router.push("/login");
       } else {
         toast.error(
           bookingData?.message ??
@@ -129,7 +136,7 @@ export default function BookingCard({ studio }: BookingCardProps) {
 
           <Button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || isPending}
             className="mt-6 w-full bg-red-600 text-white hover:bg-red-600/90 disabled:opacity-60"
           >
             {submitting ? (
