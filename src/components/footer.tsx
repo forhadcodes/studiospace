@@ -7,7 +7,7 @@ const quickLinks = [
   { label: "Home", href: "/" },
   { label: "Explore Studios", href: "/studio-explore" },
   { label: "How It Works", href: "/how-it-work" },
-  { label: "About Us", href: "#about" },
+  { label: "About Us", href: "/about-us" },
   { label: "Contact", href: "#contact" },
 ]
 

@@ -41,7 +41,7 @@ const navLinks = [
   { label: "Add Studios", href: "/add-studio" },
   { label: "My-Booking", href: "/my-booking" },
   { label: "How It Works", href: "/how-it-work" },
-  { label: "About Us", href: "#about" },
+  { label: "About Us", href: "/about-us" },
 ]
 
 const menuItems = [
