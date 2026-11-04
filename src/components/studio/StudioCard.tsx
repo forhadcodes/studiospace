@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { apiUrl } from "@/lib/api-url";
+
 /* ---------- Types ---------- */
 interface Studio {
   _id: string;
@@ -20,10 +22,7 @@ interface Studio {
 
 async function getStudios(): Promise<Studio[]> {
   try {
-    const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/studio-explore", {
-
-
-      
+    const res = await fetch(apiUrl("/studio-explore"), {
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch studios");

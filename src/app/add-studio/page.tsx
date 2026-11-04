@@ -23,16 +23,12 @@ import {
   CATEGORY_SLUGS,
   type CategorySlug,
 } from "@/lib/constants";
+import { API_URL } from "@/lib/api-url";
 
 
-// Must stay on the same host as the page (localhost vs 127.0.0.1 counts as a
+// The backend must share the page's host (localhost vs 127.0.0.1 counts as a
 // different host), otherwise the browser won't send the HTTPOnly JWT cookie
-// that the Express server verifies.
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ??
-  (typeof window === "undefined"
-    ? `&{process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000"}`
-    : `http://${window.location.hostname}:5000`);
+// that it verifies. Configure the origin via NEXT_PUBLIC_API_URL.
 
 const FIELD_CLASS = "h-10 text-sm";
 const SELECT_FIELD_CLASS = "h-10 w-full";

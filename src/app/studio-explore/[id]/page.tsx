@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import StudioDetails, {
   type Studio,
 } from "@/components/studio/StudioDetails";
+import { API_URL } from "@/lib/api-url";
 import { auth } from "@/lib/auth";
 import { getStudioById } from "@/lib/studios";
 
@@ -13,9 +14,6 @@ export const metadata: Metadata = {
   description:
     "View studio photos, amenities, hourly rates and book your next creative session on StudioSpace.",
 };
-
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "https://studiospace-backend-2h81a96ij-forhad8.vercel.app";
 
 /* ---------- Types ---------- */
 
@@ -98,7 +96,7 @@ async function fetchBackendStudio(
   jwtToken: string | null,
 ): Promise<Studio | null> {
   try {
-    const res = await fetch(`${BACKEND_URL}/studio-explore/${id}`, {
+    const res = await fetch(`${API_URL}/studio-explore/${id}`, {
       headers: jwtToken ? { authorization: `Bearer ${jwtToken}` } : undefined,
       cache: "no-store",
     });
