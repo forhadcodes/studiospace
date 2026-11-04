@@ -44,10 +44,10 @@ function CategoryGrid() {
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-6">
-        <p className="mb-2 text-xs font-bold tracking-[0.15em] text-red-600 uppercase">
+        <p className="mb-2 text-xs font-bold tracking-[0.15em] text-red-600 dark:text-red-500 uppercase">
           Find Your Perfect Space
         </p>
-        <h2 className="mb-12 text-3xl font-bold text-neutral-900 sm:text-4xl">
+        <h2 className="mb-12 text-3xl font-bold text-foreground sm:text-4xl">
           Browse by Studio Categories
         </h2>
 
@@ -55,8 +55,8 @@ function CategoryGrid() {
           {categories.map(({ label, icon: Icon, query, studios }) => (
             <Link
               key={label}
-              // Category is pre-selected on the /studios page via the query param
-              href={`/studios?category=${query}`}
+              // Category is pre-selected on the explore page via the query param
+              href={`/studio-explore?category=${query}`}
               className="group relative flex aspect-[4/5] flex-col justify-between overflow-hidden rounded-xl bg-neutral-950 p-5 text-white shadow-sm transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-xl"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-[#4a1108]/80 via-neutral-950/40 to-neutral-950 opacity-90 transition-opacity group-hover:opacity-100" />

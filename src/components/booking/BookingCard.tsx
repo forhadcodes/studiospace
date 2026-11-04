@@ -79,7 +79,9 @@ export default function BookingCard({ studio }: BookingCardProps) {
       const bookingData = await res.json().catch(() => null);
 
       if (res.ok) {
-        toast.success("Booking successful!");
+        toast.success("Booking confirmed!", {
+          description: "Opening your bookings…",
+        });
         router.push("/my-booking");
       } else if (res.status === 401) {
         toast.error("Please log in to book a studio.");
@@ -99,28 +101,28 @@ export default function BookingCard({ studio }: BookingCardProps) {
 
   return (
     <aside>
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm lg:sticky lg:top-24">
-        <p className="text-xs font-medium text-gray-500">Starting from</p>
-        <p className="mt-1 text-4xl font-semibold text-gray-900">
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm lg:sticky lg:top-24">
+        <p className="text-xs font-medium text-muted-foreground">Starting from</p>
+        <p className="mt-1 text-4xl font-semibold text-foreground">
           ${Number(studio.hourlyRate)}
-          <span className="ml-1 text-sm font-normal text-gray-500">
+          <span className="ml-1 text-sm font-normal text-muted-foreground">
             / hour
           </span>
         </p>
 
         {Number(studio.securityDeposit) > 0 && (
-          <p className="mt-2 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-muted-foreground">
             + ${Number(studio.securityDeposit)} refundable security deposit
           </p>
         )}
 
-        <div className="mt-6 border-t border-gray-200 pt-6">
-          <p className="flex items-center gap-2 text-sm text-gray-600">
-            <UsersIcon className="h-4 w-4 text-red-600" />
+        <div className="mt-6 border-t border-border pt-6">
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <UsersIcon className="h-4 w-4 text-red-600 dark:text-red-500" />
             Max capacity {Number(studio.maxCapacity)} guests
           </p>
-          <p className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-            <MapPinIcon className="h-4 w-4 text-red-600" />
+          <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+            <MapPinIcon className="h-4 w-4 text-red-600 dark:text-red-500" />
             {studio.city}
           </p>
         </div>
@@ -131,7 +133,7 @@ export default function BookingCard({ studio }: BookingCardProps) {
             name="departureDate"
             aria-label="Departure Date"
             required
-            className="mt-6 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600 sm:text-base"
+            className="mt-6 w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600 sm:text-base"
           />
 
           <Button
@@ -154,7 +156,7 @@ export default function BookingCard({ studio }: BookingCardProps) {
         </form>
 
         {/* Booking benefits */}
-        <ul className="mt-5 space-y-2.5 text-sm text-gray-600">
+        <ul className="mt-5 space-y-2.5 text-sm text-muted-foreground">
           <li className="flex items-center gap-2">
             <ClockIcon className="h-4 w-4 text-gray-400" />
             Free cancellation for 24 hours

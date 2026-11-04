@@ -20,7 +20,10 @@ interface Studio {
 
 async function getStudios(): Promise<Studio[]> {
   try {
-    const res = await fetch("http://localhost:5000/studio-explore", {
+    const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/studio-explore", {
+
+
+      
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch studios");

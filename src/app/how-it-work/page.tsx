@@ -232,17 +232,17 @@ const HowItWorkPage = () => {
       </section>
 
       {/* ---------- For creators ---------- */}
-      <section id="creators" className="scroll-mt-24 bg-white py-24">
+      <section id="creators" className="scroll-mt-24 bg-card py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="mb-2 text-xs font-bold tracking-[0.15em] text-red-600 uppercase">
+              <p className="mb-2 text-xs font-bold tracking-[0.15em] text-red-600 dark:text-red-500 uppercase">
                 For Creators
               </p>
-              <h2 className="max-w-2xl text-3xl font-bold text-neutral-900 sm:text-4xl">
+              <h2 className="max-w-2xl text-3xl font-bold text-foreground sm:text-4xl">
                 Your shoot, booked in four steps
               </h2>
-              <p className="mt-3 max-w-2xl text-sm text-neutral-500 sm:text-base">
+              <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">
                 No emails, no phone calls, no waiting on a quote. Find the right
                 space, lock in your date and get on set.
               </p>
@@ -252,7 +252,7 @@ const HowItWorkPage = () => {
               className={buttonVariants({
                 variant: "outline",
                 className:
-                  "h-11 shrink-0 rounded-lg border-red-200 text-red-600 hover:bg-red-50 hover:text-red-600",
+                  "h-11 shrink-0 rounded-lg border-red-600/30 text-red-600 dark:text-red-500 hover:bg-red-600/10 hover:text-red-600",
               })}
             >
               Browse Studios
@@ -265,30 +265,30 @@ const HowItWorkPage = () => {
               ({ icon: Icon, title, description, points }, index) => (
                 <div
                   key={title}
-                  className="group relative rounded-2xl border border-neutral-200 bg-neutral-50/60 p-6 transition duration-300 hover:-translate-y-1 hover:border-red-200 hover:bg-white hover:shadow-lg"
+                  className="group relative rounded-2xl border border-border bg-section p-6 transition duration-300 hover:-translate-y-1 hover:border-red-600/30 hover:bg-card hover:shadow-lg"
                 >
                   <span
                     aria-hidden="true"
-                    className="absolute top-5 right-6 text-4xl font-bold text-neutral-200/80 transition-colors group-hover:text-red-100"
+                    className="absolute top-5 right-6 text-4xl font-bold text-foreground/10 transition-colors group-hover:text-red-600/20"
                   >
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <div className="mb-5 grid size-12 place-items-center rounded-xl bg-red-600 text-white shadow-sm shadow-red-600/20">
                     <Icon className="size-6" />
                   </div>
-                  <h3 className="text-lg font-bold text-neutral-900">
+                  <h3 className="text-lg font-bold text-foreground">
                     {title}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-neutral-500">
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     {description}
                   </p>
-                  <ul className="mt-4 space-y-2 border-t border-neutral-200 pt-4">
+                  <ul className="mt-4 space-y-2 border-t border-border pt-4">
                     {points.map((point) => (
                       <li
                         key={point}
-                        className="flex items-start gap-2 text-sm text-neutral-600"
+                        className="flex items-start gap-2 text-sm text-muted-foreground"
                       >
-                        <CheckIcon className="mt-0.5 size-4 shrink-0 text-red-600" />
+                        <CheckIcon className="mt-0.5 size-4 shrink-0 text-red-600 dark:text-red-500" />
                         {point}
                       </li>
                     ))}
@@ -301,16 +301,16 @@ const HowItWorkPage = () => {
       </section>
 
       {/* ---------- For hosts ---------- */}
-      <section id="hosts" className="scroll-mt-24 bg-neutral-50 py-24">
+      <section id="hosts" className="scroll-mt-24 bg-section py-24">
         <div className="mx-auto grid max-w-7xl items-start gap-14 px-6 lg:grid-cols-2">
           <div>
-            <p className="mb-2 text-xs font-bold tracking-[0.15em] text-red-600 uppercase">
+            <p className="mb-2 text-xs font-bold tracking-[0.15em] text-red-600 dark:text-red-500 uppercase">
               For Hosts
             </p>
-            <h2 className="max-w-xl text-3xl font-bold text-neutral-900 sm:text-4xl">
+            <h2 className="max-w-xl text-3xl font-bold text-foreground sm:text-4xl">
               Turn your space into a booked calendar
             </h2>
-            <p className="mt-3 max-w-xl text-sm text-neutral-500 sm:text-base">
+            <p className="mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
               Whether it is a photo loft, a sound stage or a spare podcast room,
               listing on StudioSpace is free and takes minutes.
             </p>
@@ -318,14 +318,14 @@ const HowItWorkPage = () => {
             <ol className="mt-10 space-y-8">
               {hostSteps.map(({ title, description }, index) => (
                 <li key={title} className="relative flex gap-4">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-red-600 text-sm font-bold text-white ring-4 ring-neutral-50">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-red-600 text-sm font-bold text-white ring-4 ring-section">
                     {index + 1}
                   </span>
                   <div className="pt-1">
-                    <h3 className="text-lg font-bold text-neutral-900">
+                    <h3 className="text-lg font-bold text-foreground">
                       {title}
                     </h3>
-                    <p className="mt-1 text-sm leading-relaxed text-neutral-500">
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                       {description}
                     </p>
                   </div>
@@ -347,7 +347,7 @@ const HowItWorkPage = () => {
 
           {/* Illustrative listing card */}
           <div className="relative lg:sticky lg:top-24">
-            <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl">
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
               <div className="relative h-56">
                 <Image
                   src="/images/vecteezy_neon-studio-setup-photography-and-videography-backdrop_69640568.jpg"
@@ -367,43 +367,43 @@ const HowItWorkPage = () => {
               <div className="p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="text-xl font-bold text-neutral-900">
+                    <h3 className="text-xl font-bold text-foreground">
                       Neon Loft Studio
                     </h3>
-                    <p className="mt-1 flex items-center gap-1.5 text-sm text-neutral-500">
-                      <MapPinIcon className="size-4 text-red-600" />
+                    <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <MapPinIcon className="size-4 text-red-600 dark:text-red-500" />
                       Brooklyn, NY
                     </p>
                   </div>
-                  <span className="flex items-center gap-1.5 rounded-md bg-neutral-100 px-2.5 py-1 text-sm font-semibold text-neutral-800">
+                  <span className="flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1 text-sm font-semibold text-foreground">
                     <StarIcon className="size-4 fill-amber-400 text-amber-400" />
                     4.9
                   </span>
                 </div>
 
-                <div className="mt-4 grid grid-cols-3 gap-3 border-y border-neutral-200 py-4 text-center">
+                <div className="mt-4 grid grid-cols-3 gap-3 border-y border-border py-4 text-center">
                   <div>
-                    <p className="text-lg font-bold text-neutral-900">12</p>
-                    <p className="text-xs text-neutral-500">Max guests</p>
+                    <p className="text-lg font-bold text-foreground">12</p>
+                    <p className="text-xs text-muted-foreground">Max guests</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-neutral-900">$100</p>
-                    <p className="text-xs text-neutral-500">Deposit</p>
+                    <p className="text-lg font-bold text-foreground">$100</p>
+                    <p className="text-xs text-muted-foreground">Deposit</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-neutral-900">4.9</p>
-                    <p className="text-xs text-neutral-500">Rating</p>
+                    <p className="text-lg font-bold text-foreground">4.9</p>
+                    <p className="text-xs text-muted-foreground">Rating</p>
                   </div>
                 </div>
 
-                <ul className="mt-4 space-y-2.5 text-sm text-neutral-600">
+                <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
                   {[
                     "Professional lighting and cyc wall",
                     "Instant booking, no approval needed",
                     "You control rate, deposit and details",
                   ].map((item) => (
                     <li key={item} className="flex items-center gap-2">
-                      <CheckIcon className="size-4 shrink-0 text-red-600" />
+                      <CheckIcon className="size-4 shrink-0 text-red-600 dark:text-red-500" />
                       {item}
                     </li>
                   ))}
@@ -411,15 +411,15 @@ const HowItWorkPage = () => {
               </div>
             </div>
 
-            <div className="mt-4 hidden items-center gap-3 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm sm:flex">
-              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-green-50 text-green-600">
+            <div className="mt-4 hidden items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm sm:flex">
+              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-green-500/15 text-green-600 dark:text-green-400">
                 <CheckIcon className="size-5" />
               </span>
               <div>
-                <p className="text-sm font-semibold text-neutral-900">
+                <p className="text-sm font-semibold text-foreground">
                   New booking confirmed
                 </p>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-muted-foreground">
                   4 hours · $260 — payout after the shoot
                 </p>
               </div>
@@ -429,15 +429,15 @@ const HowItWorkPage = () => {
       </section>
 
       {/* ---------- Included with every booking ---------- */}
-      <section className="bg-white py-24">
+      <section className="bg-card py-24">
         <div className="mx-auto max-w-7xl px-6">
-          <p className="mb-2 text-xs font-bold tracking-[0.15em] text-red-600 uppercase">
+          <p className="mb-2 text-xs font-bold tracking-[0.15em] text-red-600 dark:text-red-500 uppercase">
             No Surprises
           </p>
-          <h2 className="mb-4 max-w-2xl text-3xl font-bold text-neutral-900 sm:text-4xl">
+          <h2 className="mb-4 max-w-2xl text-3xl font-bold text-foreground sm:text-4xl">
             Everything you need for a smooth booking
           </h2>
-          <p className="mb-14 max-w-2xl text-sm text-neutral-500 sm:text-base">
+          <p className="mb-14 max-w-2xl text-sm text-muted-foreground sm:text-base">
             The same protections apply whether you are renting a space for the
             afternoon or filling your calendar for the season.
           </p>
@@ -446,13 +446,13 @@ const HowItWorkPage = () => {
             {included.map(({ icon: Icon, title, description }) => (
               <div
                 key={title}
-                className="rounded-2xl border border-neutral-200 bg-neutral-50/60 p-6 transition-colors hover:border-red-200 hover:bg-white hover:shadow-lg"
+                className="rounded-2xl border border-border bg-section p-6 transition-colors hover:border-red-600/30 hover:bg-card hover:shadow-lg"
               >
                 <div className="mb-5 grid size-11 place-items-center rounded-lg bg-red-600 text-white">
                   <Icon className="size-5" />
                 </div>
-                <h3 className="text-lg font-bold text-neutral-900">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-neutral-500">
+                <h3 className="text-lg font-bold text-foreground">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   {description}
                 </p>
               </div>
@@ -462,30 +462,30 @@ const HowItWorkPage = () => {
       </section>
 
       {/* ---------- FAQ ---------- */}
-      <section className="bg-neutral-50 py-24">
+      <section className="bg-section py-24">
         <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
-            <p className="mb-2 text-xs font-bold tracking-[0.15em] text-red-600 uppercase">
+            <p className="mb-2 text-xs font-bold tracking-[0.15em] text-red-600 dark:text-red-500 uppercase">
               Good To Know
             </p>
-            <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl">
+            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
               Questions, answered
             </h2>
-            <p className="mt-3 max-w-md text-sm text-neutral-500 sm:text-base">
+            <p className="mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
               Everything creators and hosts ask before their first booking. If
               you still need a hand, our team is available around the clock.
             </p>
 
-            <div className="mt-8 rounded-xl border border-neutral-200 bg-white p-5">
+            <div className="mt-8 rounded-xl border border-border bg-card p-5">
               <div className="flex items-center gap-3">
                 <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-red-600 text-white">
                   <HeadphonesIcon className="size-5" />
                 </span>
                 <div>
-                  <p className="text-sm font-bold text-neutral-900">
+                  <p className="text-sm font-bold text-foreground">
                     Still have questions?
                   </p>
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-muted-foreground">
                     We are here 24/7, before and after your booking.
                   </p>
                 </div>
@@ -495,7 +495,7 @@ const HowItWorkPage = () => {
                 className={buttonVariants({
                   variant: "outline",
                   className:
-                    "mt-4 w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-600",
+                    "mt-4 w-full border-red-600/30 text-red-600 dark:text-red-500 hover:bg-red-600/10 hover:text-red-600",
                 })}
               >
                 Contact Support

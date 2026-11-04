@@ -66,7 +66,7 @@ export default function DeleteListingDialog({
         render={
           <Button
             variant="outline"
-            className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-600"
+            className="border-red-600/30 text-red-600 dark:text-red-500 hover:bg-red-600/10 hover:text-red-600"
           >
             <Trash2Icon data-icon="inline-start" />
             Delete

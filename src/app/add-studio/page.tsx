@@ -24,7 +24,15 @@ import {
   type CategorySlug,
 } from "@/lib/constants";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:5000";
+
+// Must stay on the same host as the page (localhost vs 127.0.0.1 counts as a
+// different host), otherwise the browser won't send the HTTPOnly JWT cookie
+// that the Express server verifies.
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ??
+  (typeof window === "undefined"
+    ? `&{process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000"}`
+    : `http://${window.location.hostname}:5000`);
 
 const FIELD_CLASS = "h-10 text-sm";
 const SELECT_FIELD_CLASS = "h-10 w-full";
@@ -149,7 +157,7 @@ function ReviewField({
       {hint && !error ? (
         <p className="text-xs text-muted-foreground">{hint}</p>
       ) : null}
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      {error ? <p className="text-xs text-red-600 dark:text-red-500">{error}</p> : null}
     </div>
   )
 }
@@ -185,6 +193,8 @@ export default function AddStudioPage() {
       // Single submit to the backend — payload typed properly.
       const response = await fetch(`${API_URL}/add-studio`, {
         method: "POST",
+        // Sends the HTTPOnly `studiospace_jwt` cookie that the server verifies.
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: values.title.trim(),
@@ -222,10 +232,16 @@ export default function AddStudioPage() {
         }
         setErrors(fieldErrors)
         setFormError("Please fix the highlighted fields and try again.")
+        toast.error("Please fix the highlighted fields.", {
+          description: "A few details are missing or invalid.",
+        })
         return
       }
 
-      setFormError(data?.message ?? "Something went wrong. Please try again.")
+      const message =
+        data?.message ?? "Something went wrong. Please try again."
+      setFormError(message)
+      toast.error(message)
     } catch {
       const message =
         "Network error — could not reach the server. Please try again."
@@ -237,7 +253,7 @@ export default function AddStudioPage() {
   };
 
   return (
-    <main className="flex-1 bg-muted/40">
+    <main className="flex-1 bg-section">
       <section className="mx-auto w-full max-w-5xl px-6 py-14 md:py-20">
         <header className="mb-10">
           <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
@@ -251,7 +267,7 @@ export default function AddStudioPage() {
 
         {created ? (
           <div className="mx-auto max-w-2xl rounded-2xl border bg-card p-8 text-center shadow-sm md:p-12">
-            <CheckCircle2Icon className="mx-auto size-12 text-red-600" />
+            <CheckCircle2Icon className="mx-auto size-12 text-red-600 dark:text-red-500" />
             <h2 className="mt-4 text-2xl font-bold">
               Studio added successfully!
             </h2>
@@ -282,7 +298,7 @@ export default function AddStudioPage() {
               {formError ? (
                 <div
                   role="alert"
-                  className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+                  className="rounded-lg border border-red-600/30 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:text-red-300"
                 >
                   {formError}
                 </div>
@@ -506,7 +522,7 @@ export default function AddStudioPage() {
                 variant="outline"
                 size="lg"
                 disabled={submitting}
-                className="text-red-600 hover:text-red-600"
+                className="text-red-600 dark:text-red-500 hover:text-red-600"
                 onClick={reset}
               >
                 <XIcon data-icon="inline-start" />

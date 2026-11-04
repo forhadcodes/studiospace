@@ -57,9 +57,9 @@ export default function MyListingCard({
 }: MyListingCardProps) {
   // EditStudioExplore gets the refreshed studio from the page on save.
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row">
+    <div className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-4 shadow-sm sm:flex-row">
       {/* Studio image */}
-      <div className="overflow-hidden rounded-xl bg-gray-100 sm:w-56 sm:shrink-0">
+      <div className="overflow-hidden rounded-xl bg-muted sm:w-56 sm:shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={studio.image}
@@ -70,16 +70,16 @@ export default function MyListingCard({
 
       {/* Details + actions */}
       <div className="flex flex-1 flex-col">
-        <span className="flex w-fit items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
-          <BadgeCheckIcon className="h-3.5 w-3.5 text-red-600" />
+        <span className="flex w-fit items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+          <BadgeCheckIcon className="h-3.5 w-3.5 text-red-600 dark:text-red-500" />
           {formatCategory(studio.category)}
         </span>
 
-        <h3 className="mt-2 text-xl font-semibold text-gray-900">
+        <h3 className="mt-2 text-xl font-semibold text-foreground">
           {studio.title}
         </h3>
 
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
           <p className="flex items-center gap-2">
             <MapPinIcon className="h-4 w-4 text-gray-400" />
             {studio.city}
@@ -90,9 +90,9 @@ export default function MyListingCard({
           </p>
         </div>
 
-        <p className="mt-3 text-2xl font-semibold text-red-600">
+        <p className="mt-3 text-2xl font-semibold text-red-600 dark:text-red-500">
           ${Number(studio.hourlyRate)}
-          <span className="ml-1 text-sm font-normal text-gray-500">/ hour</span>
+          <span className="ml-1 text-sm font-normal text-muted-foreground">/ hour</span>
         </p>
 
         <div className="mt-4 flex items-center gap-2 sm:ml-auto sm:mt-auto">

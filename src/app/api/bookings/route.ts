@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { getJwtUser, unauthorized } from "@/lib/auth-jwt"
 import {
   bookingInputSchema,
   createBooking,
@@ -27,10 +28,9 @@ export async function GET(request: Request) {
 
 /** POST /api/bookings — create a Pending booking for the logged-in user. */
 export async function POST(request: Request) {
-  const session = await auth.api.getSession({ headers: request.headers })
-  if (!session?.user?.email) {
-    return NextResponse.json({ message: "Please log in to book a studio." }, { status: 401 })
-  }
+  // Mutations require a valid JWT (HTTPOnly cookie, or Bearer for API clients).
+  const user = await getJwtUser(request)
+  if (!user) return unauthorized("Please log in to book a studio.")
 
   let body: unknown
   try {
@@ -51,8 +51,8 @@ export async function POST(request: Request) {
   }
 
   const booking = await createBooking(parsed.data, {
-    email: session.user.email,
-    name: session.user.name,
+    email: user.email,
+    name: user.name,
   })
 
   if (!booking) {

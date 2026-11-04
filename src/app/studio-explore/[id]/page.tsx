@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { headers } from "next/headers";
-import { ArrowLeftIcon } from "lucide-react";
+import { notFound } from "next/navigation";
 
-import { buttonVariants } from "@/components/ui/button";
 import StudioDetails, {
   type Studio,
 } from "@/components/studio/StudioDetails";
@@ -17,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 const BACKEND_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+  process.env.NEXT_PUBLIC_API_URL ?? "https://studiospace-backend-2h81a96ij-forhad8.vercel.app";
 
 /* ---------- Types ---------- */
 
@@ -138,32 +136,9 @@ export default async function StudioDetailsPage({
     backendStudio ??
     (localStudio ? normalizeStudio(localStudio, id) : null);
 
-  /* ---------- Not found / API error state ---------- */
-  if (!studio) {
-    return (
-      <main className="min-h-screen bg-gray-50">
-        <section className="mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-semibold text-gray-900">
-            Studio not found
-          </h1>
-          <p className="mt-3 text-sm text-gray-500">
-            This listing may have been removed, or the server that holds it is
-            unreachable.
-          </p>
-          <Link
-            href="/studio-explore"
-            className={`${buttonVariants({
-              variant: "outline",
-              className: "mt-8",
-            })} text-red-600 hover:text-red-600`}
-          >
-            <ArrowLeftIcon data-icon="inline-start" />
-            Back to Studios
-          </Link>
-        </section>
-      </main>
-    );
-  }
+  /* ---------- Not found ---------- */
+  // Renders the custom app/not-found.tsx (with the studio illustration).
+  if (!studio) notFound();
 
   return <StudioDetails studio={studio} />;
 }

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 
-import { auth } from "@/lib/auth"
+import { getJwtUser, unauthorized } from "@/lib/auth-jwt"
 import { isCategorySlug } from "@/lib/constants"
 import {
   createStudio,
@@ -50,6 +50,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // Mutations require a valid JWT (HTTPOnly cookie, or Bearer for API clients).
+  const user = await getJwtUser(request)
+  if (!user) return unauthorized("Please log in to add a studio.")
+
   let body: unknown
   try {
     body = await request.json()
@@ -68,21 +72,12 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // The owner comes from the logged-in session cookie, never the request
-  // body. Falls back to the demo host identity so Phase 1 (auth-less
-  // testing from Postman/curl) keeps working.
-  const session = await auth.api.getSession({ headers: request.headers })
-  const owner = session?.user
-    ? {
-        ownerEmail: session.user.email,
-        ownerName: session.user.name ?? session.user.email,
-        ownerPhoto: session.user.image ?? undefined,
-      }
-    : {
-        ownerEmail:
-          process.env.DEMO_HOST_EMAIL ?? "examiner@studiospace.dev",
-        ownerName: "Forhad Hussain",
-      }
+  // The owner comes from the verified JWT, never from the request body.
+  const owner = {
+    ownerEmail: user.email,
+    ownerName: user.name,
+    ownerPhoto: user.image ?? undefined,
+  }
 
   const studio = await createStudio(parsed.data, owner)
   if (!studio) {

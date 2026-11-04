@@ -34,12 +34,12 @@ const steps = [
 
 function BookingSteps() {
   return (
-    <section className="bg-neutral-50 py-20">
+    <section className="bg-section py-20">
       <div className="mx-auto max-w-7xl px-6">
-        <p className="mb-2 text-xs font-bold tracking-[0.15em] text-red-600 uppercase">
+        <p className="mb-2 text-xs font-bold tracking-[0.15em] text-red-600 dark:text-red-500 uppercase">
           Simple By Design
         </p>
-        <h2 className="mb-14 text-3xl font-bold text-neutral-900 sm:text-4xl">
+        <h2 className="mb-14 text-3xl font-bold text-foreground sm:text-4xl">
           How Booking Works
         </h2>
 
@@ -47,18 +47,18 @@ function BookingSteps() {
           {/* Connector line between steps on desktop */}
           <div
             aria-hidden="true"
-            className="absolute top-6 right-[12%] left-[12%] hidden h-px border-t-2 border-dashed border-neutral-300 lg:block"
+            className="absolute top-6 right-[12%] left-[12%] hidden h-px border-t-2 border-dashed border-border lg:block"
           />
           {steps.map(({ icon: Icon, title, description }, index) => (
             <li key={title} className="relative">
               <div className="mb-4 flex items-center gap-3">
-                <div className="grid size-12 place-items-center rounded-full bg-red-600 text-xl font-bold text-white ring-4 ring-neutral-50">
+                <div className="grid size-12 place-items-center rounded-full bg-red-600 text-xl font-bold text-white ring-4 ring-section">
                   {index + 1}
                 </div>
-                <Icon className="size-6 text-red-600" />
+                <Icon className="size-6 text-red-600 dark:text-red-500" />
               </div>
-              <h3 className="text-lg font-bold text-neutral-900">{title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-500">
+              <h3 className="text-lg font-bold text-foreground">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {description}
               </p>
             </li>

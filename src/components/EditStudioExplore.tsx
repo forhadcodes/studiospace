@@ -195,7 +195,7 @@ const ReviewField = ({
       <p className="text-xs text-muted-foreground">{hint}</p>
     ) : null}
     {error ? (
-      <p role="alert" className="text-xs text-red-600 dark:text-red-400">
+      <p role="alert" className="text-xs text-red-600 dark:text-red-500">
         {error}
       </p>
     ) : null}
@@ -273,11 +273,12 @@ const EditStudioExplore = ({ studio, onSaved }: EditStudioExploreProps) => {
       setOpen(false);
       onSaved?.();
     } catch (error) {
-      setFormError(
+      const message =
         error instanceof Error
           ? error.message
-          : "Something went wrong. Please try again.",
-      );
+          : "Something went wrong. Please try again.";
+      setFormError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -287,7 +288,7 @@ const EditStudioExplore = ({ studio, onSaved }: EditStudioExploreProps) => {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
-          <Button variant="outline" className="text-gray-900">
+          <Button variant="outline" className="text-foreground">
             <PencilIcon data-icon="inline-start" />
             Edit
           </Button>
@@ -307,7 +308,7 @@ const EditStudioExplore = ({ studio, onSaved }: EditStudioExploreProps) => {
             {formError ? (
               <div
                 role="alert"
-                className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+                className="rounded-lg border border-red-600/30 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:text-red-300"
               >
                 {formError}
               </div>
@@ -525,7 +526,7 @@ const EditStudioExplore = ({ studio, onSaved }: EditStudioExploreProps) => {
               variant="outline"
               size="lg"
               disabled={submitting}
-              className="text-red-600 hover:text-red-600"
+              className="text-red-600 dark:text-red-500 hover:text-red-600"
               onClick={() => handleOpenChange(false)}
             >
               <XIcon data-icon="inline-start" />

@@ -72,10 +72,10 @@ function getStatus(
       : "Completed";
 
   const classes: Record<BookingStatus, string> = {
-    Pending: "bg-amber-50 text-amber-700",
-    Confirmed: "bg-emerald-50 text-emerald-700",
-    Completed: "bg-sky-50 text-sky-700",
-    Cancelled: "bg-red-50 text-red-700",
+    Pending: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+    Confirmed: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    Completed: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
+    Cancelled: "bg-red-600/10 text-red-700 dark:text-red-400",
   };
 
   return { label: status, className: classes[status] };
@@ -127,9 +127,9 @@ export default function MyBookingCard({
   }
 
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row">
+    <div className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-4 shadow-sm sm:flex-row">
       {/* Studio image */}
-      <div className="overflow-hidden rounded-xl bg-gray-100 sm:w-56 sm:shrink-0">
+      <div className="overflow-hidden rounded-xl bg-muted sm:w-56 sm:shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={booking.image}
@@ -147,11 +147,11 @@ export default function MyBookingCard({
           {status.label}
         </span>
 
-        <h3 className="mt-2 text-xl font-semibold text-gray-900">
+        <h3 className="mt-2 text-xl font-semibold text-foreground">
           {booking.title}
         </h3>
 
-        <div className="mt-2 space-y-1 text-sm text-gray-600">
+        <div className="mt-2 space-y-1 text-sm text-muted-foreground">
           <p className="flex items-center gap-2">
             <CalendarIcon className="h-4 w-4 text-gray-400" />
             Departure: {formatDate(booking.departureDate)}
@@ -162,7 +162,7 @@ export default function MyBookingCard({
           </p>
         </div>
 
-        <p className="mt-3 text-2xl font-semibold text-red-600">
+        <p className="mt-3 text-2xl font-semibold text-red-600 dark:text-red-500">
           ${Number(booking.hourlyRate)}
         </p>
 
@@ -172,7 +172,7 @@ export default function MyBookingCard({
             <Button
               variant="ghost"
               onClick={handleCancel}
-              className="text-red-600 hover:bg-red-50 hover:text-red-600"
+              className="text-red-600 dark:text-red-500 hover:bg-red-600/10 hover:text-red-600"
             >
               {canceling ? (
                 <LoaderCircleIcon

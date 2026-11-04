@@ -143,7 +143,7 @@ function Footer() {
 
       {/* Bottom bar: copyright & terms */}
       <div className="border-t border-white/10 px-6">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 py-6 text-xs text-neutral-500 sm:flex-row">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 py-6 text-xs text-muted-foreground sm:flex-row">
           <p>© 2026 StudioSpace. All rights reserved.</p>
           <p className="flex items-center gap-4">
             <Link href="#terms" className="transition-colors hover:text-white">

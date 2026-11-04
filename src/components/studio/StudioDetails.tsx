@@ -60,13 +60,13 @@ export default function StudioDetails({ studio }: { studio: Studio }) {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-section">
       <section className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
         {/* Top bar: back link + action buttons */}
         <div className="flex items-center justify-between">
           <Link
             href="/studio-explore"
-            className="flex items-center gap-2 text-sm text-gray-500 transition hover:text-gray-900"
+            className="flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
           >
             <ArrowLeftIcon className="h-4 w-4" />
             Back to Studios
@@ -81,7 +81,7 @@ export default function StudioDetails({ studio }: { studio: Studio }) {
         </div>
 
         {/* Hero image */}
-        <div className="mt-5 overflow-hidden rounded-2xl bg-gray-100">
+        <div className="mt-5 overflow-hidden rounded-2xl bg-muted">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={studio.image}
@@ -95,60 +95,60 @@ export default function StudioDetails({ studio }: { studio: Studio }) {
           {/* Left column */}
           <div>
             {/* Location badge */}
-            <span className="flex items-center gap-1.5 text-sm text-gray-500">
-              <MapPinIcon className="h-4 w-4 text-red-600" />
+            <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <MapPinIcon className="h-4 w-4 text-red-600 dark:text-red-500" />
               {formatCategory(studio.category)} · {studio.city}
             </span>
 
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">
+            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
               {studio.title}
             </h1>
 
             {/* Rating + capacity row */}
-            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
               {rating > 0 && (
                 <span className="flex items-center gap-1.5">
                   <StarIcon className="h-4 w-4 fill-amber-400 text-amber-400" />
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-semibold text-foreground">
                     {rating.toFixed(1)}
                   </span>
                   {reviewCount > 0 && <span>({reviewCount} reviews)</span>}
                 </span>
               )}
               <span className="flex items-center gap-1.5">
-                <UsersIcon className="h-4 w-4 text-red-600" />
+                <UsersIcon className="h-4 w-4 text-red-600 dark:text-red-500" />
                 Up to {Number(studio.maxCapacity)} guests
               </span>
               <span className="flex items-center gap-1.5">
-                <MapPinIcon className="h-4 w-4 text-red-600" />
+                <MapPinIcon className="h-4 w-4 text-red-600 dark:text-red-500" />
                 {studio.address}, {studio.city}
               </span>
             </div>
 
             {/* Overview */}
-            <div className="mt-8 border-t border-gray-200 pt-8">
-              <h2 className="text-2xl font-semibold text-gray-900">Overview</h2>
-              <p className="mt-3 leading-relaxed text-gray-600">
+            <div className="mt-8 border-t border-border pt-8">
+              <h2 className="text-2xl font-semibold text-foreground">Overview</h2>
+              <p className="mt-3 leading-relaxed text-muted-foreground">
                 {studio.overview}
               </p>
             </div>
 
             {/* Highlights (amenities checklist) */}
             {amenities.length > 0 && (
-              <div className="mt-8 border-t border-gray-200 pt-8">
-                <h2 className="text-2xl font-semibold text-gray-900">
+              <div className="mt-8 border-t border-border pt-8">
+                <h2 className="text-2xl font-semibold text-foreground">
                   Highlights
                 </h2>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Everything this space includes
                 </p>
                 <ul className="mt-5 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
                   {amenities.map((a) => (
                     <li
                       key={a}
-                      className="flex items-center gap-2.5 text-sm text-gray-700"
+                      className="flex items-center gap-2.5 text-sm text-foreground/80"
                     >
-                      <BadgeCheckIcon className="h-5 w-5 shrink-0 text-red-600" />
+                      <BadgeCheckIcon className="h-5 w-5 shrink-0 text-red-600 dark:text-red-500" />
                       {a}
                     </li>
                   ))}

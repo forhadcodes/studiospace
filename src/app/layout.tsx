@@ -3,6 +3,12 @@ import { Comic_Relief } from 'next/font/google';
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { JwtCookieSync } from "@/components/auth/jwt-cookie-sync";
+import {
+  THEME_SCRIPT,
+  ThemeProvider,
+} from "@/components/theme/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const comicRelief = Comic_Relief({
   subsets: ['latin'],
@@ -19,12 +25,21 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      // The inline script below sets `class="dark"` before hydration, which
+      // intentionally differs from the server markup.
+      suppressHydrationWarning
       className={`${comicRelief.className} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Navbar></Navbar>
-        {children}
-        <Footer></Footer>
+        {/* Applies the stored/system theme before anything paints (no flash). */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        <ThemeProvider>
+          <JwtCookieSync />
+          <Navbar></Navbar>
+          {children}
+          <Footer></Footer>
+          <Toaster />
+        </ThemeProvider>
         </body>
     </html>
   );

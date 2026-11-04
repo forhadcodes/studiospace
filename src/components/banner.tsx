@@ -133,10 +133,7 @@ function Banner() {
                     </Link>
                     <Link
                       href="/studio-explore"
-                      className={buttonVariants({
-                        className:
-                          "h-11 rounded-lg bg-black/20 px-6 text-base text-neutral-900 hover:bg-black/85",
-                      })}
+                      className="inline-flex h-11 items-center justify-center rounded-lg border border-white/30 bg-black/30 px-6 text-base font-medium text-white transition-colors hover:bg-black/60 focus-visible:ring-3 focus-visible:ring-white/40 focus-visible:outline-none"
                     >
                       Host Your Space
                     </Link>
@@ -182,7 +179,7 @@ function Banner() {
 
       {/* "Most Popular Studio" card (shared overlay) */}
       <aside className="pointer-events-auto absolute right-6 bottom-8 z-10 hidden lg:block">
-        <div className="w-72 rounded-xl bg-white p-4 shadow-2xl">
+        <div className="w-72 rounded-xl bg-card p-4 shadow-2xl">
           <Image
             src="/images/vecteezy_neon-studio-setup-photography-and-videography-backdrop_69640568.jpg"
             alt="Studio setup with cameras, lighting and a red backdrop"
@@ -192,10 +189,10 @@ function Banner() {
             priority
             className="h-40 w-full rounded-lg object-cover"
           />
-          <h3 className="mt-4 text-lg font-bold text-neutral-900">
+          <h3 className="mt-4 text-lg font-bold text-foreground">
             Most Popular Studio
           </h3>
-          <p className="mt-1 text-sm text-neutral-600">
+          <p className="mt-1 text-sm text-muted-foreground">
             Professional studio designed to bring every vision to life.
           </p>
         </div>

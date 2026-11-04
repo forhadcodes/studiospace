@@ -34,6 +34,8 @@ import {
   SheetClose,
 } from "@/components/ui/sheet"
 import { authClient } from "@/lib/auth-client"
+import { ThemeToggle } from "@/components/theme/theme-toggle"
+import { toast } from "sonner"
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -87,6 +89,9 @@ function UserMenu({
 
   async function handleLogout() {
     await authClient.signOut()
+    // Drop the HTTPOnly JWT cookie too, so writes can't ride on a stale token.
+    await fetch("/api/auth/jwt", { method: "DELETE" }).catch(() => {})
+    toast.success("Signed out", { description: "See you on set soon." })
     router.push("/")
     router.refresh()
   }
@@ -125,11 +130,11 @@ function UserMenu({
             )}
           </Avatar>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-neutral-900">
+            <p className="truncate text-sm font-semibold text-foreground">
               {name}
             </p>
             {email && (
-              <p className="truncate text-xs text-neutral-500">{email}</p>
+              <p className="truncate text-xs text-muted-foreground">{email}</p>
             )}
           </div>
         </div>
@@ -141,7 +146,7 @@ function UserMenu({
             render={<Link href={href} className="w-full" />}
             className="gap-2.5 rounded-md px-3 py-2"
           >
-            <Icon className="text-neutral-500" />
+            <Icon className="text-muted-foreground" />
             <span className="font-medium">{label}</span>
           </DropdownMenuItem>
         ))}
@@ -173,12 +178,15 @@ function Navbar() {
 
   async function handleMobileLogout() {
     await authClient.signOut()
+    // Drop the HTTPOnly JWT cookie too, so writes can't ride on a stale token.
+    await fetch("/api/auth/jwt", { method: "DELETE" }).catch(() => {})
+    toast.success("Signed out", { description: "See you on set soon." })
     router.push("/")
     router.refresh()
   }
 
   return (
-    <header className="sticky top-0 z-30 bg-neutral-950/85 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-white/10 bg-neutral-950/85 backdrop-blur-md">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 text-white">
@@ -195,6 +203,8 @@ function Navbar() {
 
         {/* Actions */}
         <div className="flex items-center gap-3">
+          <ThemeToggle className="text-white hover:bg-white/10 hover:text-white" />
+
           {user ? (
             <UserMenu name={name ?? "User"} email={email} avatarSrc={avatarSrc} />
           ) : (
@@ -237,13 +247,13 @@ function Navbar() {
               <Menu className="size-5" />
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
-              <div className="flex items-center gap-2 px-2 text-neutral-900">
+              <div className="flex items-center gap-2 px-2 text-foreground">
                 <Aperture className="size-6" />
                 <span className="text-xl font-bold">StudioSpace</span>
               </div>
 
               {user && (
-                <div className="mx-2 mt-4 flex items-center gap-3 rounded-lg bg-neutral-100 p-3">
+                <div className="mx-2 mt-4 flex items-center gap-3 rounded-lg bg-muted p-3">
                   <Avatar className="ring-2 ring-red-600/60">
                     {avatarSrc ? (
                       <AvatarImage
@@ -258,11 +268,11 @@ function Navbar() {
                     )}
                   </Avatar>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-neutral-900">
+                    <p className="truncate text-sm font-semibold text-foreground">
                       {name}
                     </p>
                     {email && (
-                      <p className="truncate text-xs text-neutral-500">
+                      <p className="truncate text-xs text-muted-foreground">
                         {email}
                       </p>
                     )}
@@ -276,12 +286,16 @@ function Navbar() {
                     key={link.label}
                     render={<Link href={link.href} />}
                   >
-                    <span className="block rounded-md px-2 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-100">
+                    <span className="block rounded-md px-2 py-2 text-sm font-medium text-foreground hover:bg-muted">
                       {link.label}
                     </span>
                   </SheetClose>
                 ))}
               </nav>
+
+              <div className="mx-2 mt-3 border-t pt-3">
+                <ThemeToggle showLabel />
+              </div>
 
               {user && (
                 <>
@@ -291,8 +305,8 @@ function Navbar() {
                         key={label}
                         render={<Link href={href} />}
                       >
-                        <span className="flex items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-100">
-                          <Icon className="size-4 text-neutral-500" />
+                        <span className="flex items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium text-foreground hover:bg-muted">
+                          <Icon className="size-4 text-muted-foreground" />
                           {label}
                         </span>
                       </SheetClose>
@@ -301,7 +315,7 @@ function Navbar() {
                   <Button
                     variant="outline"
                     onClick={handleMobileLogout}
-                    className="justify-start gap-2 border-red-200 px-4 text-red-600 hover:bg-red-50 hover:text-red-600"
+                    className="justify-start gap-2 border-red-600/30 px-4 text-red-600 dark:text-red-500 hover:bg-red-600/10 hover:text-red-600"
                   >
                     <LogOutIcon className="size-4" />
                     Logout

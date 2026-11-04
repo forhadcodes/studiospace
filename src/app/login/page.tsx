@@ -2,6 +2,8 @@
 import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { LogInIcon, LoaderCircleIcon } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -23,12 +25,10 @@ import { authClient } from "@/lib/auth-client"
 
 export default function LogInPage() {
   const router = useRouter()
-  const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
 
   const handleEmailLogIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setError(null)
     setPending(true)
 
     const formData = new FormData(e.currentTarget)
@@ -37,17 +37,29 @@ export default function LogInPage() {
       password: string
     }
 
+    const toastId = toast.loading("Signing you in…")
     const { data, error: signInError } = await authClient.signIn.email({
       ...user,
     })
 
     if (signInError) {
-      setError(signInError.message ?? "Could not sign you in. Please try again.")
+      toast.error(
+        signInError.message ?? "Could not sign you in. Please try again.",
+        { id: toastId },
+      )
       setPending(false)
       return
     }
 
     if (data) {
+      // Mirror the new session into the HTTPOnly JWT cookie the write APIs
+      // verify. Navigation waits for it so the first protected call carries it.
+      await fetch("/api/auth/jwt", { method: "POST" }).catch(() => {})
+
+      toast.success("Welcome back!", {
+        id: toastId,
+        description: "You're signed in — taking you home.",
+      })
       router.push("/")
       router.refresh()
     }
@@ -101,15 +113,6 @@ export default function LogInPage() {
                 Or continue with email
               </FieldSeparator>
 
-              {error && (
-                <div
-                  role="alert"
-                  className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-                >
-                  {error}
-                </div>
-              )}
-
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
@@ -141,6 +144,11 @@ export default function LogInPage() {
               </Field>
               <Field>
                 <Button type="submit" disabled={pending}>
+                  {pending ? (
+                    <LoaderCircleIcon data-icon="inline-start" className="animate-spin" />
+                  ) : (
+                    <LogInIcon data-icon="inline-start" />
+                  )}
                   {pending ? "Signing in…" : "Sign In"}
                 </Button>
                 <FieldDescription className="text-center">

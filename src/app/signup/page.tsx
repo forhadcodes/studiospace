@@ -2,6 +2,8 @@
 import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { LoaderCircleIcon, UserPlusIcon } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -23,12 +25,10 @@ import { authClient } from "@/lib/auth-client"
 
 export default function SignUpPage() {
   const router = useRouter()
-  const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
 
   const handleEmailSignUp = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setError(null)
     setPending(true)
 
     const formData = new FormData(e.currentTarget)
@@ -39,6 +39,8 @@ export default function SignUpPage() {
       image?: string
     }
 
+    const toastId = toast.loading("Creating your account…")
+
     // image is optional — only send it when the user filled something in.
     const { data, error: signUpError } = await authClient.signUp.email({
       name: form.name,
@@ -48,9 +50,10 @@ export default function SignUpPage() {
     })
 
     if (signUpError) {
-      setError(
+      toast.error(
         signUpError.message ??
-          "Could not create your account. Please try again."
+          "Could not create your account. Please try again.",
+        { id: toastId },
       )
       setPending(false)
       return
@@ -58,6 +61,14 @@ export default function SignUpPage() {
 
     // better-auth signs the user in on sign-up, so go straight home.
     if (data) {
+      // Mirror the new session into the HTTPOnly JWT cookie the write APIs
+      // verify. Navigation waits for it so the first protected call carries it.
+      await fetch("/api/auth/jwt", { method: "POST" }).catch(() => {})
+
+      toast.success("Account created!", {
+        id: toastId,
+        description: "Welcome to StudioSpace — taking you home.",
+      })
       router.push("/")
       router.refresh()
     }
@@ -111,15 +122,6 @@ export default function SignUpPage() {
                 Or continue with email
               </FieldSeparator>
 
-              {error && (
-                <div
-                  role="alert"
-                  className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-                >
-                  {error}
-                </div>
-              )}
-
               <Field>
                 <FieldLabel htmlFor="name">Name</FieldLabel>
                 <Input
@@ -159,7 +161,7 @@ export default function SignUpPage() {
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <span className="ml-auto text-xs text-gray-500">
+                  <span className="ml-auto text-xs text-muted-foreground">
                     Min. 8 characters
                   </span>
                 </div>
@@ -174,6 +176,11 @@ export default function SignUpPage() {
               </Field>
               <Field>
                 <Button type="submit" disabled={pending}>
+                  {pending ? (
+                    <LoaderCircleIcon data-icon="inline-start" className="animate-spin" />
+                  ) : (
+                    <UserPlusIcon data-icon="inline-start" />
+                  )}
                   {pending ? "Creating account…" : "Sign Up"}
                 </Button>
                 <FieldDescription className="text-center">

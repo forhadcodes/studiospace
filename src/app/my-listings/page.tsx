@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { LoaderCircleIcon, RefreshCwIcon } from "lucide-react";
+import { Building2Icon, RefreshCwIcon } from "lucide-react";
 
+import { EmptyState } from "@/components/empty-state";
+import { RowListSkeleton } from "@/components/loading/skeletons";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import MyListingCard, {
   type ListingStudio,
@@ -126,11 +129,19 @@ export default function MyListingsPage() {
   /* ---------- Loading state (session resolving, or list fetching) ---------- */
   if (sessionPending || (!!email && loading)) {
     return (
-      <main className="flex min-h-[60vh] items-center justify-center bg-gray-50">
-        <span className="flex items-center gap-3 text-sm text-gray-500">
-          <LoaderCircleIcon className="size-5 animate-spin text-red-600" />
-          Loading your listings…
-        </span>
+      <main className="min-h-screen bg-section">
+        <section className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <Skeleton className="h-10 w-72" />
+              <Skeleton className="mt-3 h-4 w-80" />
+            </div>
+            <Skeleton className="h-10 w-36 rounded-md" />
+          </div>
+          <div className="mt-8 border-t border-border pt-8">
+            <RowListSkeleton count={3} />
+          </div>
+        </section>
       </main>
     );
   }
@@ -138,12 +149,12 @@ export default function MyListingsPage() {
   /* ---------- Not logged in ---------- */
   if (!user) {
     return (
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-section">
         <div className="mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-semibold text-gray-900">
+          <h1 className="text-3xl font-semibold text-foreground">
             Please log in
           </h1>
-          <p className="mt-3 text-sm text-gray-500">
+          <p className="mt-3 text-sm text-muted-foreground">
             You need a host account to manage your studio listings.
           </p>
           <Link
@@ -162,18 +173,18 @@ export default function MyListingsPage() {
   /* ---------- API error state ---------- */
   if (failed) {
     return (
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-section">
         <div className="mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-semibold text-gray-900">
+          <h1 className="text-3xl font-semibold text-foreground">
             Couldn&apos;t load your listings
           </h1>
-          <p className="mt-3 text-sm text-gray-500">
+          <p className="mt-3 text-sm text-muted-foreground">
             Something went wrong fetching your studios. Please try again.
           </p>
           <Button
             variant="outline"
             onClick={refreshListings}
-            className="mt-8 text-red-600 hover:bg-red-50 hover:text-red-600"
+            className="mt-8 text-red-600 dark:text-red-500 hover:bg-red-600/10 hover:text-red-600"
           >
             <RefreshCwIcon data-icon="inline-start" />
             Try again
@@ -184,14 +195,14 @@ export default function MyListingsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-section">
       <section className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-semibold tracking-tight text-gray-900">
+            <h1 className="text-4xl font-semibold tracking-tight text-foreground">
               My Studio Listings
             </h1>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-muted-foreground">
               Studio spaces you own — update or remove them anytime
             </p>
           </div>
@@ -205,25 +216,28 @@ export default function MyListingsPage() {
           </Link>
         </div>
 
-        <div className="mt-8 space-y-5 border-t border-gray-200 pt-8">
+        <div className="mt-8 space-y-5 border-t border-border pt-8">
           {studios.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
-              <h2 className="text-xl font-semibold text-gray-900">
-                No listings yet
-              </h2>
-              <p className="mt-2 text-sm text-gray-500">
-                List your first studio and it will show up here.
-              </p>
+            <EmptyState
+              icon={Building2Icon}
+              title="No listings yet"
+              description="Your studio shelf is empty. Publish your first space and start turning empty hours into booked shoots."
+            >
               <Link
                 href="/add-studio"
-                className={`${buttonVariants({
-                  variant: "outline",
-                  className: "mt-6",
-                })} text-red-600 hover:text-red-600`}
+                className={buttonVariants({
+                  className: "bg-red-600 text-white hover:bg-red-600/90",
+                })}
               >
                 Add a Studio
               </Link>
-            </div>
+              <Link
+                href="/studio-explore"
+                className={buttonVariants({ variant: "outline" })}
+              >
+                See Other Studios
+              </Link>
+            </EmptyState>
           ) : (
             studios.map((studio) => (
               <MyListingCard

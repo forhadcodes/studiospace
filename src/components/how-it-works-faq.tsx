@@ -59,12 +59,12 @@ function HowItWorksFaq() {
         <AccordionItem
           key={value}
           value={value}
-          className="rounded-xl border border-neutral-200 bg-white px-1 not-last:border-b"
+          className="rounded-xl border border-border bg-card px-1 not-last:border-b"
         >
-          <AccordionTrigger className="px-5 py-4 text-base font-bold text-neutral-900 hover:no-underline aria-expanded:text-red-600">
+          <AccordionTrigger className="px-5 py-4 text-base font-bold text-foreground hover:no-underline aria-expanded:text-red-600">
             {question}
           </AccordionTrigger>
-          <AccordionContent className="px-5 pb-4 text-sm leading-relaxed text-neutral-600">
+          <AccordionContent className="px-5 pb-4 text-sm leading-relaxed text-muted-foreground">
             {answer}
           </AccordionContent>
         </AccordionItem>

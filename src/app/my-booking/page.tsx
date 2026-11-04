@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { LoaderCircleIcon, RefreshCwIcon } from "lucide-react";
+import { CalendarX2Icon, RefreshCwIcon } from "lucide-react";
 
+import { EmptyState } from "@/components/empty-state";
+import { RowListSkeleton } from "@/components/loading/skeletons";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import MyBookingCard, {
   type Booking,
@@ -115,11 +118,14 @@ export default function MyBookingsPage() {
   /* ---------- Loading state (session resolving, or bookings fetching) ---------- */
   if (sessionPending || (!!email && loading)) {
     return (
-      <main className="flex min-h-[60vh] items-center justify-center bg-gray-50">
-        <span className="flex items-center gap-3 text-sm text-gray-500">
-          <LoaderCircleIcon className="size-5 animate-spin text-red-600" />
-          Loading bookings…
-        </span>
+      <main className="min-h-screen bg-section">
+        <section className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+          <Skeleton className="h-10 w-64" />
+          <Skeleton className="mt-3 h-4 w-80" />
+          <div className="mt-8 border-t border-border pt-8">
+            <RowListSkeleton count={3} />
+          </div>
+        </section>
       </main>
     );
   }
@@ -127,12 +133,12 @@ export default function MyBookingsPage() {
   /* ---------- Not logged in ---------- */
   if (!user) {
     return (
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-section">
         <div className="mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-semibold text-gray-900">
+          <h1 className="text-3xl font-semibold text-foreground">
             Please log in
           </h1>
-          <p className="mt-3 text-sm text-gray-500">
+          <p className="mt-3 text-sm text-muted-foreground">
             You need an account to view your bookings.
           </p>
           <Link
@@ -151,18 +157,18 @@ export default function MyBookingsPage() {
   /* ---------- API error state ---------- */
   if (failed) {
     return (
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-section">
         <div className="mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-semibold text-gray-900">
+          <h1 className="text-3xl font-semibold text-foreground">
             Couldn&apos;t load bookings
           </h1>
-          <p className="mt-3 text-sm text-gray-500">
+          <p className="mt-3 text-sm text-muted-foreground">
             We couldn&apos;t reach the bookings service. Please try again.
           </p>
           <Button
             variant="outline"
             onClick={retry}
-            className="mt-8 text-red-600 hover:bg-red-50 hover:text-red-600"
+            className="mt-8 text-red-600 dark:text-red-500 hover:bg-red-600/10 hover:text-red-600"
           >
             <RefreshCwIcon data-icon="inline-start" />
             Try again
@@ -173,34 +179,37 @@ export default function MyBookingsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-section">
       <section className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-semibold tracking-tight text-gray-900">
+        <h1 className="text-4xl font-semibold tracking-tight text-foreground">
           My Bookings
         </h1>
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 text-sm text-muted-foreground">
           Manage and view your upcoming studio sessions
         </p>
 
-        <div className="mt-8 space-y-5 border-t border-gray-200 pt-8">
+        <div className="mt-8 space-y-5 border-t border-border pt-8">
           {bookings.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
-              <h2 className="text-xl font-semibold text-gray-900">
-                No bookings yet
-              </h2>
-              <p className="mt-2 text-sm text-gray-500">
-                When you book a studio, it will show up here.
-              </p>
+            <EmptyState
+              icon={CalendarX2Icon}
+              title="No bookings yet"
+              description="Your call sheet is empty. Find a space, pick your hours and your first booking will show up here."
+            >
               <Link
                 href="/studio-explore"
-                className={`${buttonVariants({
-                  variant: "outline",
-                  className: "mt-6",
-                })} text-red-600 hover:text-red-600`}
+                className={buttonVariants({
+                  className: "bg-red-600 text-white hover:bg-red-600/90",
+                })}
               >
                 Browse Studios
               </Link>
-            </div>
+              <Link
+                href="/how-it-work"
+                className={buttonVariants({ variant: "outline" })}
+              >
+                How It Works
+              </Link>
+            </EmptyState>
           ) : (
             bookings.map((booking) => (
               <MyBookingCard
