@@ -158,7 +158,7 @@ export default function MyListingsPage() {
             You need a host account to manage your studio listings.
           </p>
           <Link
-            href="/login"
+            href="/login?redirect=/my-listings"
             className={`${buttonVariants({
               className: "mt-8",
             })} bg-red-600 text-white hover:bg-red-600/90`}

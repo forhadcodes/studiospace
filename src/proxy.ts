@@ -10,7 +10,12 @@ const session = await auth.api.getSession({
 })
 const user = session?.user
 if (!user) {
-  return NextResponse.redirect(new URL('/login', request.url))
+  // Carry the originally requested page along so the login page can send the
+  // user straight back to it after sign-in (?redirect=...) instead of home.
+  const target = `${request.nextUrl.pathname}${request.nextUrl.search}`
+  return NextResponse.redirect(
+    new URL(`/login?redirect=${encodeURIComponent(target)}`, request.url)
+  )
 }
 
 //   return NextResponse.redirect(new URL('/home', request.url))

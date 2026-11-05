@@ -154,8 +154,11 @@ export default function LogInPage() {
       // directly — their desired route, or the home page.
       callbackURL: getRedirectTarget(),
       // On OAuth failure, come back to this page (?error=...) so the user
-      // sees an actionable toast instead of BetterAuth's default error URL.
-      errorCallbackURL: "/login",
+      // sees an actionable toast — and keep the desired route in the URL so
+      // the next sign-in attempt still lands there.
+      errorCallbackURL: `/login?redirect=${encodeURIComponent(
+        getRedirectTarget()
+      )}`,
     })
 
     if (error) {

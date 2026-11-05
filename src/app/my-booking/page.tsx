@@ -142,7 +142,7 @@ export default function MyBookingsPage() {
             You need an account to view your bookings.
           </p>
           <Link
-            href="/login"
+            href="/login?redirect=/my-booking"
             className={`${buttonVariants({
               className: "mt-8",
             })} bg-red-600 text-white hover:bg-red-600/90`}

@@ -59,7 +59,10 @@ export default function BookingCard({ studio }: BookingCardProps) {
     if (!user) {
       setOpen(false);
       toast.error("Please log in to book a studio.");
-      router.push("/login");
+      // Send the user back to this exact page after sign-in.
+      router.push(
+        `/login?redirect=${encodeURIComponent(window.location.pathname)}`,
+      );
       return;
     }
 
@@ -100,7 +103,10 @@ export default function BookingCard({ studio }: BookingCardProps) {
       } else if (res.status === 401) {
         setOpen(false);
         toast.error("Please log in to book a studio.");
-        router.push("/login");
+        // Return to this studio page after sign-in.
+        router.push(
+          `/login?redirect=${encodeURIComponent(window.location.pathname)}`,
+        );
       } else {
         // 409 double-booking and other server errors surface here as toasts.
         toast.error(
