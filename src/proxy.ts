@@ -10,7 +10,7 @@ const session = await auth.api.getSession({
 })
 const user = session?.user
 if (!user) {
-  return NextResponse.redirect(new URL('/login', request.url))
+  return NextResponse.redirect(new URL('/signup', request.url))
 }
 
 //   return NextResponse.redirect(new URL('/home', request.url))
