@@ -20,5 +20,5 @@ if (!user) {
 // export default function proxy(request: NextRequest) { ... }
 
 export const config = {
-  matcher: ['/add-studio', '/my-booking', '/studio-explore', '/studio-explore/:path*', '/studio/:path*'],
+  matcher: [],
 }
