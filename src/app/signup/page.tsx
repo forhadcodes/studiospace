@@ -1,5 +1,5 @@
 "use client"
-import { useState, type FormEvent } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { LoaderCircleIcon, UserPlusIcon } from "lucide-react"
@@ -22,11 +22,33 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth-client"
+import { describeOAuthError } from "@/lib/oauth-errors"
 
 export default function SignUpPage() {
   const router = useRouter()
   const [pending, setPending] = useState(false)
   const [googlePending, setGooglePending] = useState(false)
+
+  /**
+   * Google OAuth failures: BetterAuth redirects back here with
+   * `?error=<code>` — surface it as a toast and clean the URL. Paired with
+   * `errorCallbackURL: "/signup"` on the Google sign-in call below.
+   */
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const params = new URLSearchParams(window.location.search)
+    const error = params.get("error")
+    if (!error) return
+    toast.error(describeOAuthError(error))
+    params.delete("error")
+    params.delete("error_description")
+    const remaining = params.toString()
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${remaining ? `?${remaining}` : ""}`
+    )
+  }, [])
 
   const handleEmailSignUp = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -110,7 +132,14 @@ export default function SignUpPage() {
 
                     const { error } = await authClient.signIn.social({
                       provider: "google",
-                      callbackURL: "/login",
+                      // New (or newly linked) Google users land on the home
+                      // page. `<JwtCookieSync />` in the root layout mints
+                      // the HTTPOnly JWT cookie on arrival.
+                      callbackURL: "/",
+                      // On OAuth failure, come back here (?error=...) so the
+                      // user sees an actionable toast instead of BetterAuth's
+                      // default error URL.
+                      errorCallbackURL: "/signup",
                     })
 
                     if (error) {

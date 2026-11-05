@@ -65,6 +65,23 @@ export const auth = betterAuth({
     resetPasswordTokenExpiresIn: 3600, // 1 hour
   },
   socialProviders,
+  // Account linking: lets a user who registered with email/password log in
+  // with Google afterwards (same email), without a separate account.
+  // - `trustedProviders: ["google"]` — Google verifies its emails itself, so
+  //   it may implicitly link the OAuth account to the local user.
+  // - `requireLocalEmailVerified: false` — our app has no email verification
+  //   flow, so locally-registered users are `emailVerified: false`; with the
+  //   default `true` BetterAuth would refuse the link ("account not linked").
+  //   Keeping the trust list limited to google keeps this safe.
+  // - `allowDifferentEmails` stays false: a Google account with a different
+  //   email never silently links to the local user.
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ["google"],
+      requireLocalEmailVerified: false,
+    },
+  },
   plugins: [
     // The minted JWT is stored in a 7-day cookie (`lib/auth-jwt.ts`), so the
     // token must live as long as the cookie — the plugin's default is only

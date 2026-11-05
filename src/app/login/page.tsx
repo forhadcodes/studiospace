@@ -1,5 +1,5 @@
 "use client"
-import { useState, type FormEvent } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { LogInIcon, LoaderCircleIcon, KeyRoundIcon } from "lucide-react"
@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth-client"
+import { describeOAuthError } from "@/lib/oauth-errors"
 
 /** Google logo (public domain mark, same asset shadcn uses). */
 function GoogleIcon() {
@@ -63,12 +64,48 @@ function getRedirectTarget(): string {
 
 export default function LogInPage() {
   const router = useRouter()
+  const { data: session } = authClient.useSession()
   const [pending, setPending] = useState(false)
   const [googlePending, setGooglePending] = useState(false)
 
   // Forgot-password dialog state.
   const [forgotOpen, setForgotOpen] = useState(false)
   const [forgotPending, setForgotPending] = useState(false)
+
+  /**
+   * Google OAuth failures: BetterAuth redirects back here with
+   * `?error=<code>` — surface it as a toast and clean the URL. Paired with
+   * `errorCallbackURL: "/login"` on the Google sign-in call below.
+   */
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const params = new URLSearchParams(window.location.search)
+    const error = params.get("error")
+    if (!error) return
+    toast.error(describeOAuthError(error))
+    params.delete("error")
+    params.delete("error_description")
+    const remaining = params.toString()
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${remaining ? `?${remaining}` : ""}`
+    )
+  }, [])
+
+  /**
+   * Returning from a successful Google round-trip: the session is already
+   * active when this page loads, so navigate straight to the desired route.
+   * The root layout's `<JwtCookieSync />` mints the HTTPOnly JWT cookie as the
+   * session appears, so protected writes keep working.
+   */
+  useEffect(() => {
+    if (!session?.user || pending || googlePending) return
+    toast.success("You're signed in — taking you there now.")
+    router.push(getRedirectTarget())
+    router.refresh()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.id])
 
   const handleEmailLogIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -116,6 +153,9 @@ export default function LogInPage() {
       // After the Google round-trip better-auth lands the user here
       // directly — their desired route, or the home page.
       callbackURL: getRedirectTarget(),
+      // On OAuth failure, come back to this page (?error=...) so the user
+      // sees an actionable toast instead of BetterAuth's default error URL.
+      errorCallbackURL: "/login",
     })
 
     if (error) {
