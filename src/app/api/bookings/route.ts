@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server"
 
-import { getJwtUser, unauthorized } from "@/lib/auth-jwt"
+import {
+  getAuthUser,
+  unauthorized,
+} from "@/lib/auth-jwt"
 import {
   bookingInputSchema,
   createBooking,
@@ -28,8 +31,9 @@ export async function GET(request: Request) {
 
 /** POST /api/bookings — create a Pending booking for the logged-in user. */
 export async function POST(request: Request) {
-  // Mutations require a valid JWT (HTTPOnly cookie, or Bearer for API clients).
-  const user = await getJwtUser(request)
+  // Mutations require an authenticated user (JWT cookie/Bearer, or the
+  // BetterAuth session cookie as the resilient same-origin fallback).
+  const user = await getAuthUser(request)
   if (!user) return unauthorized("Please log in to book a studio.")
 
   let body: unknown

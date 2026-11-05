@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { getJwtUser, unauthorized, type JwtUser } from "@/lib/auth-jwt"
+import { getAuthUser, unauthorized, type JwtUser } from "@/lib/auth-jwt"
 import {
   deleteStudio,
   studioUpdateSchema,
@@ -28,7 +28,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
 }
 
 export async function PUT(request: Request, { params }: RouteContext) {
-  const user = await getJwtUser(request)
+  const user = await getAuthUser(request)
   if (!user) return unauthorized("Please log in to update this studio.")
 
   const { id } = await params
@@ -73,7 +73,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
 }
 
 export async function DELETE(request: Request, { params }: RouteContext) {
-  const user = await getJwtUser(request)
+  const user = await getAuthUser(request)
   if (!user) return unauthorized("Please log in to delete this studio.")
 
   const { id } = await params

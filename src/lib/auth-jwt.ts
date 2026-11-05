@@ -83,6 +83,39 @@ export async function getJwtUser(request: Request): Promise<JwtUser | null> {
   }
 }
 
+/**
+ * Resolves the authed user from EITHER the JWT cookie/token or the regular
+ * BetterAuth session (the exact source GET endpoints already trust).
+ *
+ * Background: mutations originally only accepted the JWT cookie. But the
+ * browser only receives that cookie right after sign-in and from the
+ * `<JwtCookieSync />` full-page-load pass — if it is missing (cleared by the
+ * browser, bloat cleanup, or a client-side navigation after it expired while
+ * the session cookie is still valid) an authenticated user was rejected with
+ * 401 on POST /api/bookings, silently "losing" their booking. The session
+ * fallback removes that failure mode; the JWT path stays so curl/Postman and
+ * server-to-server callers (Authorization: Bearer) keep working.
+ */
+export async function getAuthUser(request: Request): Promise<JwtUser | null> {
+  const jwtUser = await getJwtUser(request)
+  if (jwtUser) return jwtUser
+
+  try {
+    const session = await auth.api.getSession({ headers: request.headers })
+    const user = session?.user
+    if (!user?.email) return null
+
+    return {
+      id: String(user.id ?? ""),
+      email: user.email,
+      name: user.name ?? user.email,
+      image: user.image ?? null,
+    }
+  } catch {
+    return null
+  }
+}
+
 /** Standard 401 body for protected mutations. */
 export function unauthorized(message = "Unauthorized") {
   return NextResponse.json({ message }, { status: 401 })

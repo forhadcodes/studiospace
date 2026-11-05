@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 
-import { getJwtUser, unauthorized } from "@/lib/auth-jwt"
+import { getAuthUser, unauthorized } from "@/lib/auth-jwt"
 import { isCategorySlug } from "@/lib/constants"
 import {
   createStudio,
@@ -50,8 +50,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  // Mutations require a valid JWT (HTTPOnly cookie, or Bearer for API clients).
-  const user = await getJwtUser(request)
+  // Mutations require an authenticated user (JWT cookie/Bearer, or the
+  // BetterAuth session cookie as the resilient same-origin fallback).
+  const user = await getAuthUser(request)
   if (!user) return unauthorized("Please log in to add a studio.")
 
   let body: unknown

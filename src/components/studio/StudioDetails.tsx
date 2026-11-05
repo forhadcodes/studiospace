@@ -21,6 +21,7 @@ import {
 import EditStudioExplore from "@/components/EditStudioExplore";
 import DeleteStudioDialog from "@/components/DeleteStudioDialog";
 import BookingCard from "@/components/booking/BookingCard";
+import { authClient } from "@/lib/auth-client";
 
 /* ---------- Types ---------- */
 
@@ -79,10 +80,21 @@ export default function StudioDetails({
 
   // Edit/delete are owner-only: the API enforces it (403) and we hide the
   // buttons up front so users don't discover it via an error.
+  //
+  // Two sources for the viewer's e-mail, in order:
+  // 1. `viewerEmail` — resolved server-side by the RSC page (fast, no flicker).
+  // 2. The client-side BetterAuth session — safety net for the case where the
+  //    server couldn't resolve the session (cookie-cache miss etc.). The
+  //    buttons behind this gate stay hidden on the server render either way,
+  //    so there is no hydration mismatch; they just appear once resolved.
+  const { data: clientSession } = authClient.useSession();
+  const viewer =
+    viewerEmail ?? clientSession?.user?.email ?? null;
+
   const canManage =
-    Boolean(viewerEmail) &&
+    Boolean(viewer) &&
     Boolean(studio.ownerEmail) &&
-    studio.ownerEmail!.toLowerCase() === viewerEmail!.toLowerCase();
+    studio.ownerEmail!.toLowerCase() === viewer!.toLowerCase();
 
   // The edit dialog saves through /api/studios/:id; refresh the server
   // component so it re-fetches the updated studio.
