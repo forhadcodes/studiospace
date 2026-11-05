@@ -36,6 +36,17 @@ const BASE_URL = isHttpUrl(process.env.BETTER_AUTH_URL)
   ? process.env.BETTER_AUTH_URL
   : undefined;
 
+// Google OAuth is optional at build/depoy time: only register the provider
+// when both credentials exist, so a missing .env entry doesn't break startup —
+// the login page just reports that social sign-in is unavailable.
+const socialProviders: import("better-auth").BetterAuthOptions["socialProviders"] = {};
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  socialProviders.google = {
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  };
+}
+
 export const auth = betterAuth({
   database: mongodbAdapter(db, {
     client,
@@ -43,7 +54,17 @@ export const auth = betterAuth({
   baseURL: BASE_URL,
   emailAndPassword: {
     enabled: true,
+    // Required for "Forgot Password" to be functional. This app has no SMTP
+    // provider, so the reset link is written to the server logs instead of
+    // being emailed — the login page shows the generic "check your email"
+    // toast. Swap this for an email service (Resend/Nodemailer) when one is
+    // wired up.
+    sendResetPassword: async ({ user, url }) => {
+      console.log(`[auth] Password reset link for ${user.email}: ${url}`);
+    },
+    resetPasswordTokenExpiresIn: 3600, // 1 hour
   },
+  socialProviders,
   plugins: [
     // The minted JWT is stored in a 7-day cookie (`lib/auth-jwt.ts`), so the
     // token must live as long as the cookie — the plugin's default is only
