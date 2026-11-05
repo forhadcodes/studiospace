@@ -227,7 +227,7 @@ function Navbar() {
                     "hidden bg-red-600 text-white hover:bg-red-600/90 sm:inline-flex",
                 })}
               >
-                Sign Up
+                Registration
               </Link>
             </>
           )}

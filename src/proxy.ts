@@ -10,7 +10,7 @@ const session = await auth.api.getSession({
 })
 const user = session?.user
 if (!user) {
-  return NextResponse.redirect(new URL('/signup', request.url))
+  return NextResponse.redirect(new URL('/login', request.url))
 }
 
 //   return NextResponse.redirect(new URL('/home', request.url))
@@ -20,5 +20,9 @@ if (!user) {
 // export default function proxy(request: NextRequest) { ... }
 
 export const config = {
-  matcher: [],
+  matcher: [
+    '/studio-explore/:path*',
+    '/add-studio/:path*',
+    '/my-booking/:path*',
+  ],
 }
