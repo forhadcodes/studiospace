@@ -11,31 +11,31 @@ const categories = [
   {
     label: "Photo Studios",
     icon: CameraIcon,
-    query: "photo",
+    query: "photo-studio",
     studios: "120+ spaces",
   },
   {
     label: "Sound Stages",
     icon: ClapperboardIcon,
-    query: "sound-stage",
+    query: "film-stage",
     studios: "80+ spaces",
   },
   {
     label: "Podcast Rooms",
     icon: MicIcon,
-    query: "podcast",
+    query: "podcast-lounge",
     studios: "60+ spaces",
   },
   {
     label: "Music Suites",
     icon: MusicIcon,
-    query: "music",
+    query: "music-suite",
     studios: "45+ spaces",
   },
   {
     label: "Art Workshops",
     icon: PaintbrushIcon,
-    query: "art-workshops",
+    query: "workshop",
     studios: "30+ spaces",
   },
 ]

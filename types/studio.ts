@@ -1,6 +1,6 @@
-import Link from "next/link";
-
 /* ---------- Types ---------- */
+/** @deprecated legacy shape — kept for reference; the live types live in src/ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface Studio {
   _id: string;
   title: string;

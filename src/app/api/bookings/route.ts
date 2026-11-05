@@ -50,17 +50,29 @@ export async function POST(request: Request) {
     )
   }
 
-  const booking = await createBooking(parsed.data, {
+  const result = await createBooking(parsed.data, {
     email: user.email,
     name: user.name,
   })
 
-  if (!booking) {
+  if (result === null) {
     return NextResponse.json(
       { message: "Database not configured — set MONGODB_URI to save bookings." },
       { status: 503 }
     )
   }
 
-  return NextResponse.json({ booking }, { status: 201 })
+  if (result.status === "conflict") {
+    // Challenge 2: no double-booking — one Confirmed reservation per studio
+    // per departure date. The client shows this message in a toast.
+    return NextResponse.json(
+      {
+        message:
+          "This studio already has a confirmed booking for that date. Please pick a different date.",
+      },
+      { status: 409 }
+    )
+  }
+
+  return NextResponse.json({ booking: result.booking }, { status: 201 })
 }

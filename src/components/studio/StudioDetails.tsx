@@ -7,9 +7,17 @@ import {
   BadgeCheckIcon,
   MapPinIcon,
   StarIcon,
+  UserIcon,
   UsersIcon,
 } from "lucide-react";
 
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import EditStudioExplore from "@/components/EditStudioExplore";
 import DeleteStudioDialog from "@/components/DeleteStudioDialog";
 import BookingCard from "@/components/booking/BookingCard";
@@ -30,8 +38,10 @@ export interface Studio {
   gallery?: string[];
   amenities?: string[];
   overview: string;
-  /** Owner e-mail from Mongo — needed to gate edit/delete on ownership. */
+  /** Owner info from Mongo — owner e-mail gates edit/delete, name shows the host. */
   ownerEmail?: string;
+  ownerName?: string;
+  ownerPhoto?: string;
   rating?: number;
   reviewCount?: number;
 }
@@ -59,8 +69,13 @@ export default function StudioDetails({
   const router = useRouter();
 
   const amenities = Array.isArray(studio.amenities) ? studio.amenities : [];
+  const gallery = Array.isArray(studio.gallery) ? studio.gallery : [];
+  const slides = [studio.image, ...gallery].filter(Boolean);
   const rating = studio.rating ? Number(studio.rating) : 0;
   const reviewCount = studio.reviewCount ? Number(studio.reviewCount) : 0;
+  const hostName =
+    studio.ownerName?.trim() ||
+    (studio.ownerEmail ? studio.ownerEmail.split("@")[0] : "Host");
 
   // Edit/delete are owner-only: the API enforces it (403) and we hide the
   // buttons up front so users don't discover it via an error.
@@ -98,14 +113,28 @@ export default function StudioDetails({
           )}
         </div>
 
-        {/* Hero image */}
+        {/* Hero image / gallery carousel */}
         <div className="mt-5 overflow-hidden rounded-2xl bg-muted">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={studio.image}
-            alt={studio.title}
-            className="h-[280px] w-full object-cover sm:h-[420px]"
-          />
+          <Carousel className="w-full" opts={{ loop: slides.length > 1 }}>
+            <CarouselContent className="ml-0">
+              {slides.map((src, index) => (
+                <CarouselItem key={`${src}-${index}`} className="pl-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={src}
+                    alt={`${studio.title} photo ${index + 1}`}
+                    className="h-[280px] w-full object-cover sm:h-[420px]"
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            {slides.length > 1 && (
+              <>
+                <CarouselPrevious className="left-3" />
+                <CarouselNext className="right-3" />
+              </>
+            )}
+          </Carousel>
         </div>
 
         {/* Details + booking card */}
@@ -141,6 +170,28 @@ export default function StudioDetails({
                 <MapPinIcon className="h-4 w-4 text-red-600 dark:text-red-500" />
                 {studio.address}, {studio.city}
               </span>
+            </div>
+
+            {/* Host */}
+            <div className="mt-6 flex items-center gap-3 rounded-xl border border-border bg-card p-4">
+              <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
+                {studio.ownerPhoto ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={studio.ownerPhoto}
+                    alt={hostName}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <UserIcon className="size-6 text-muted-foreground" />
+                )}
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Hosted by</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {hostName}
+                </p>
+              </div>
             </div>
 
             {/* Overview */}

@@ -48,7 +48,7 @@ const navLinks = [
 
 const menuItems = [
   { label: "Profile", href: "/profile", icon: UserIcon },
-  { label: "Dashboard", href: "/", icon: LayoutDashboardIcon },
+  { label: "Dashboard", href: "/profile", icon: LayoutDashboardIcon },
   { label: "Add New Studio", href: "/add-studio", icon: PlusSquareIcon },
   { label: "My Bookings", href: "/my-booking", icon: CalendarCheckIcon },
   { label: "My Studio Listings", href: "/my-listings", icon: ListIcon },

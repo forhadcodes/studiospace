@@ -39,6 +39,8 @@ export default function DeleteListingDialog({
 
       const res = await fetch(`/api/studios/${studioId}`, {
         method: "DELETE",
+        // Explicit per spec: sends the HTTPOnly JWT cookie with the request.
+        credentials: "include",
       });
 
       if (res.ok) {

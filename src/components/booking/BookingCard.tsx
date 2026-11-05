@@ -14,6 +14,14 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { authClient } from "@/lib/auth-client";
 
 /* ---------- Types ---------- */
@@ -34,10 +42,12 @@ interface BookingCardProps {
 
 /* ---------- Component ---------- */
 
-// Booking summary card (price, key details, date picker, CTA, benefits)
-// shown beside the studio details. Submits the booking to the Express API.
+// Booking summary card (price, key details, benefits) shown beside the studio
+// details. "Book Now" opens a custom modal where the date is picked and the
+// booking is submitted.
 export default function BookingCard({ studio }: BookingCardProps) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
@@ -47,6 +57,7 @@ export default function BookingCard({ studio }: BookingCardProps) {
 
     if (isPending) return;
     if (!user) {
+      setOpen(false);
       toast.error("Please log in to book a studio.");
       router.push("/login");
       return;
@@ -69,6 +80,8 @@ export default function BookingCard({ studio }: BookingCardProps) {
 
       const res = await fetch("/api/bookings", {
         method: "POST",
+        // Explicit per spec: sends the HTTPOnly JWT cookie with the request.
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...studioFields,
@@ -79,14 +92,17 @@ export default function BookingCard({ studio }: BookingCardProps) {
       const bookingData = await res.json().catch(() => null);
 
       if (res.ok) {
+        setOpen(false);
         toast.success("Booking confirmed!", {
           description: "Opening your bookings…",
         });
         router.push("/my-booking");
       } else if (res.status === 401) {
+        setOpen(false);
         toast.error("Please log in to book a studio.");
         router.push("/login");
       } else {
+        // 409 double-booking and other server errors surface here as toasts.
         toast.error(
           bookingData?.message ??
             `Booking failed (${res.status}). Please try again.`,
@@ -127,33 +143,57 @@ export default function BookingCard({ studio }: BookingCardProps) {
           </p>
         </div>
 
-        <form onSubmit={handleBooking}>
-          <Input
-            type="date"
-            name="departureDate"
-            aria-label="Departure Date"
-            required
-            className="mt-6 w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600 sm:text-base"
+        {/* Book Now opens the booking modal */}
+        <Dialog open={open} onOpenChange={(next) => !submitting && setOpen(next)}>
+          <DialogTrigger
+            render={
+              <Button
+                disabled={submitting || isPending}
+                className="mt-6 w-full bg-red-600 text-white hover:bg-red-600/90 disabled:opacity-60"
+              >
+                Book Now
+              </Button>
+            }
           />
 
-          <Button
-            type="submit"
-            disabled={submitting || isPending}
-            className="mt-6 w-full bg-red-600 text-white hover:bg-red-600/90 disabled:opacity-60"
-          >
-            {submitting ? (
-              <>
-                <LoaderCircleIcon
-                  data-icon="inline-start"
-                  className="animate-spin"
-                />
-                Booking…
-              </>
-            ) : (
-              "Book Now"
-            )}
-          </Button>
-        </form>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Book this studio</DialogTitle>
+              <DialogDescription>
+                Pick your shoot date — the studio holds one confirmed booking
+                per date.
+              </DialogDescription>
+            </DialogHeader>
+
+            <form onSubmit={handleBooking} noValidate>
+              <Input
+                type="date"
+                name="departureDate"
+                aria-label="Departure Date"
+                required
+                className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600 sm:text-base"
+              />
+
+              <Button
+                type="submit"
+                disabled={submitting || isPending}
+                className="mt-5 w-full bg-red-600 text-white hover:bg-red-600/90 disabled:opacity-60"
+              >
+                {submitting ? (
+                  <>
+                    <LoaderCircleIcon
+                      data-icon="inline-start"
+                      className="animate-spin"
+                    />
+                    Booking…
+                  </>
+                ) : (
+                  "Confirm Booking"
+                )}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
 
         {/* Booking benefits */}
         <ul className="mt-5 space-y-2.5 text-sm text-muted-foreground">

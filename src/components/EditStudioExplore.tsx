@@ -44,6 +44,8 @@ export type Studio = {
   gallery?: string[] | string;
   amenities?: string[] | string;
   overview: string;
+  /** Owner e-mail (used by the dedicated edit page to gate the UI). */
+  ownerEmail?: string;
 };
 
 // Form values are kept as strings so inputs stay controlled.
@@ -82,6 +84,8 @@ type EditStudioExploreProps = {
   studio: Studio;
   /** Optional: called after a successful save (e.g. router.refresh()). */
   onSaved?: () => void;
+  /** Opens the dialog immediately (used by the /studio-explore/edit/[id] page). */
+  defaultOpen?: boolean;
 };
 
 /* ---------- helpers ---------- */
@@ -204,8 +208,8 @@ const ReviewField = ({
 
 /* ---------- component ---------- */
 
-const EditStudioExplore = ({ studio, onSaved }: EditStudioExploreProps) => {
-  const [open, setOpen] = useState(false);
+const EditStudioExplore = ({ studio, onSaved, defaultOpen }: EditStudioExploreProps) => {
+  const [open, setOpen] = useState(Boolean(defaultOpen));
   const [values, setValues] = useState<FormValues>(() => studioToValues(studio));
   const [errors, setErrors] = useState<FormErrors>({});
   const [formError, setFormError] = useState("");
@@ -260,6 +264,8 @@ const EditStudioExplore = ({ studio, onSaved }: EditStudioExploreProps) => {
       // PUT /api/studios/:id — _id goes only in the URL; the body has every other field.
       const res = await fetch(`/api/studios/${studio._id}`, {
         method: "PUT",
+        // Explicit per spec: sends the HTTPOnly JWT cookie with the request.
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -301,14 +307,16 @@ const EditStudioExplore = ({ studio, onSaved }: EditStudioExploreProps) => {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger
-        render={
-          <Button variant="outline" className="text-foreground">
-            <PencilIcon data-icon="inline-start" />
-            Edit
-          </Button>
-        }
-      />
+      {!defaultOpen && (
+        <DialogTrigger
+          render={
+            <Button variant="outline" className="text-foreground">
+              <PencilIcon data-icon="inline-start" />
+              Edit
+            </Button>
+          }
+        />
+      )}
 
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>

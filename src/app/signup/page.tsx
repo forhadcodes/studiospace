@@ -39,6 +39,20 @@ export default function SignUpPage() {
       image?: string
     }
 
+    // Password policy before hitting the API: 8+ chars (covers the 6+
+    // requirement) with both upper and lower case letters.
+    if (
+      form.password.length < 8 ||
+      !/[A-Z]/.test(form.password) ||
+      !/[a-z]/.test(form.password)
+    ) {
+      setPending(false)
+      toast.error(
+        "Password must be 8+ characters with upper and lower case letters."
+      )
+      return
+    }
+
     const toastId = toast.loading("Creating your account…")
 
     // image is optional — only send it when the user filled something in.
@@ -59,17 +73,14 @@ export default function SignUpPage() {
       return
     }
 
-    // better-auth signs the user in on sign-up, so go straight home.
+    // The account is created, but per spec register hands the user to the
+    // login page to sign in explicitly.
     if (data) {
-      // Mirror the new session into the HTTPOnly JWT cookie the write APIs
-      // verify. Navigation waits for it so the first protected call carries it.
-      await fetch("/api/auth/jwt", { method: "POST" }).catch(() => {})
-
       toast.success("Account created!", {
         id: toastId,
-        description: "Welcome to StudioSpace — taking you home.",
+        description: "You can now log in with your new credentials.",
       })
-      router.push("/")
+      router.push("/login")
       router.refresh()
     }
   }
@@ -162,7 +173,7 @@ export default function SignUpPage() {
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                   <span className="ml-auto text-xs text-muted-foreground">
-                    Min. 8 characters
+                    Min. 8 chars, upper + lower case
                   </span>
                 </div>
                 <Input

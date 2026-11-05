@@ -27,12 +27,12 @@ StudioSpace is a peer-to-peer marketplace for creators, filmmakers, photographer
 
 | Layer | Technology |
 | --- | --- |
-| Frontend | Next.js (App Router), Tailwind CSS, DaisyUI / HeroUI / Shadcn UI, TypeScript / JavaScript |
-| Authentication | BetterAuth, MongoDB Adapter, JWT (HTTPOnly cookies) |
-| Backend | Express.js, Node.js |
-| Database | MongoDB |
-| Other | Swiper.js, Sonner / React Hot Toast, imgbb (image upload) |
-| Deployment | Vercel (client), Render / Vercel (server) |
+| Frontend | Next.js (App Router), React, Tailwind CSS v4, shadcn/base-nova UI (Base UI), TypeScript |
+| Authentication | BetterAuth + MongoDB Adapter, JWT (HTTPOnly cookie) |
+| Backend | Next.js API Routes (Node.js runtime) |
+| Database | MongoDB (Atlas) |
+| Other | Swiper.js (hero slider), embla-carousel-react (studio gallery), Sonner (toasts) |
+| Deployment | Vercel (single full-stack deployment) |
 
 ---
 
@@ -41,70 +41,61 @@ StudioSpace is a peer-to-peer marketplace for creators, filmmakers, photographer
 | Route | Access | Description |
 | --- | --- | --- |
 | `/` | Public | Home page |
-| `/studios` | Public | Explore all studios |
-| `/studios/[id]` | Public | Studio details and booking modal |
-| `/login`, `/register` | Public | Authentication |
+| `/studio-explore` | Public→ | Explore all studios (with category/price filters) |
+| `/studio-explore/[id]` | Public→ | Studio details: gallery carousel, amenities, host, booking modal |
+| `/studio-explore/edit/[id]` | Private | Update a studio (owner only) |
+| `/signup`, `/login` | Public | Authentication |
 | `/add-studio` | Private | Add a new studio |
 | `/my-listings` | Private | Manage your own listings |
-| `/studios/edit/[id]` | Private | Update a studio |
-| `/my-bookings` | Private | View and cancel bookings |
+| `/my-booking` | Private | View and cancel bookings |
+| `/profile` | Private | Your dashboard |
+
+> This project is a single full-stack Next.js app: the client and the API
+> (`/api/*`) live in one repository, deployed together.
 
 ---
 
 ## Local Setup
 
-### 1. Clone both repositories
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/studiospace-client.git
-git clone https://github.com/your-username/studiospace-server.git
+git clone https://github.com/your-username/studiospace.git
+cd studiospace
 ```
 
-### 2. Run the server
+### 2. Install dependencies
 
 ```bash
-cd studiospace-server
 npm install
 ```
 
-Create a `.env` file:
+### 3. Configure environment variables
+
+Copy `.env.example` to `.env` and fill in the values (never commit the real
+`.env`):
 
 ```env
-PORT=5000
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-CLIENT_URL=http://localhost:3000
-```
-
-Start the server:
-
-```bash
-npm run dev
-```
-
-### 3. Run the client
-
-```bash
-cd studiospace-client
-npm install
-```
-
-Create a `.env.local` file:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
 MONGODB_URI=your_mongodb_connection_string
 BETTER_AUTH_SECRET=your_auth_secret
 BETTER_AUTH_URL=http://localhost:3000
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-NEXT_PUBLIC_IMGBB_KEY=your_imgbb_api_key
+DEMO_HOST_EMAIL=you@example.com
 ```
 
-Start the client:
+### 4. Start the app
 
 ```bash
+# dev server (client + API routes)
 npm run dev
+
+# production
+npm run build && npm start
+```
+
+Optionally seed demo studios:
+
+```bash
+npm run seed
 ```
 
 Open http://localhost:3000 in your browser.
@@ -113,19 +104,19 @@ Open http://localhost:3000 in your browser.
 
 ## Examiner Test Credentials
 
-| Role | Email | Password |
-| --- | --- | --- |
-| Examiner | examiner@studiospace.com | Examiner123 |
-
-> Replace these with a real account you have created on the live site.
+> The heading above the seeded demo listings is `examiner@studiospace.dev`
+> — log in with any account you register to test booking and hosting flows,
+> or create an examiner account on the live site with that mindset.
 
 ---
 
 ## Project Structure
 
 ```
-studiospace-client/   Next.js frontend (App Router)
-studiospace-server/   Express.js REST API with MongoDB
+src/app/            Next.js App Router (pages + /api routes)
+src/components/     UI components (shadcn/base-nova + app components)
+src/lib/            Auth, bookings, studios helpers and constants
+scripts/seed.ts     Demo data seeder (npm run seed)
 ```
 
 ---

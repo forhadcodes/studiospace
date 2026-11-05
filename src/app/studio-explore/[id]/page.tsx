@@ -33,6 +33,7 @@ type RawStudio = {
   overview?: string;
   ownerEmail?: string;
   ownerName?: string;
+  ownerPhoto?: string;
   rating?: number;
   reviewCount?: number;
 };
@@ -69,6 +70,8 @@ function normalizeStudio(raw: RawStudio, fallbackId: string): Studio {
     amenities: toStringList(raw.amenities),
     overview: raw.overview ?? "",
     ownerEmail: raw.ownerEmail ?? "",
+    ownerName: raw.ownerName ?? "",
+    ownerPhoto: raw.ownerPhoto || undefined,
     rating: Number(raw.rating ?? 0),
     reviewCount: Number(raw.reviewCount ?? 0),
   };

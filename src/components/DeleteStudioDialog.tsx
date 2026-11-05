@@ -37,6 +37,8 @@ const DeleteStudioDialog = ({ studioId }: DeleteStudioDialogProps) => {
     try {
       const res = await fetch(`/api/studios/${id}`, {
         method: "DELETE",
+        // Explicit per spec: sends the HTTPOnly JWT cookie with the request.
+        credentials: "include",
       });
 
       if (res.ok) {

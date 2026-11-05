@@ -131,10 +131,22 @@ export async function listBookingsByEmail(
 export async function createBooking(
   input: BookingInput,
   user: { email: string; name?: string | null }
-): Promise<Booking | null> {
+): Promise<{ status: "created"; booking: Booking } | { status: "conflict" } | null> {
   try {
     const collection = await getBookingsCollection()
     if (!collection) return null
+
+    // Double-booking guard: one confirmed reservation per studio per date.
+    // Pending/Completed/Cancelled bookings do not block new ones.
+    const existing = await collection.countDocuments(
+      {
+        studioId: input.studioId,
+        departureDate: input.departureDate,
+        status: "Confirmed",
+      },
+      { limit: 1 }
+    )
+    if (existing > 0) return { status: "conflict" }
 
     const doc: Document = {
       ...input,
@@ -145,7 +157,10 @@ export async function createBooking(
     }
 
     const result = await collection.insertOne(doc)
-    return docToBooking({ ...doc, _id: result.insertedId })
+    return {
+      status: "created",
+      booking: docToBooking({ ...doc, _id: result.insertedId }),
+    }
   } catch {
     return null
   }

@@ -12,6 +12,17 @@ import {
 } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 /* ---------- Types ---------- */
 
@@ -103,6 +114,8 @@ export default function MyBookingCard({
 
       const res = await fetch(`/api/bookings/${booking._id}`, {
         method: "PATCH",
+        // Explicit per spec: sends the HTTPOnly JWT cookie with the request.
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "Cancelled" }),
       });
@@ -167,23 +180,60 @@ export default function MyBookingCard({
         </p>
 
         <div className="mt-4 flex items-center gap-2 sm:ml-auto sm:mt-auto">
-          {/* Cancel is available only while the booking is Pending */}
+          {/* Cancel is available only while the booking is Pending, and asks
+              for confirmation in a modal first (no native confirm()). */}
           {cancellable && (
-            <Button
-              variant="ghost"
-              onClick={handleCancel}
-              className="text-red-600 dark:text-red-500 hover:bg-red-600/10 hover:text-red-600"
-            >
-              {canceling ? (
-                <LoaderCircleIcon
-                  data-icon="inline-start"
-                  className="animate-spin"
-                />
-              ) : (
-                <XCircleIcon data-icon="inline-start" />
-              )}
-              Cancel Booking
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    disabled={canceling}
+                    className="text-red-600 dark:text-red-500 hover:bg-red-600/10 hover:text-red-600"
+                  >
+                    {canceling ? (
+                      <LoaderCircleIcon
+                        data-icon="inline-start"
+                        className="animate-spin"
+                      />
+                    ) : (
+                      <XCircleIcon data-icon="inline-start" />
+                    )}
+                    Cancel Booking
+                  </Button>
+                }
+              />
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Cancel this booking?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Your reservation for “{booking.title}” on{" "}
+                    {formatDate(booking.departureDate)} will be cancelled. This
+                    cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={canceling}>
+                    Keep Booking
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleCancel}
+                    disabled={canceling}
+                    className="bg-red-600 text-white hover:bg-red-600/90"
+                  >
+                    {canceling ? (
+                      <LoaderCircleIcon
+                        data-icon="inline-start"
+                        className="animate-spin"
+                      />
+                    ) : (
+                      <XCircleIcon data-icon="inline-start" />
+                    )}
+                    {canceling ? "Cancelling…" : "Yes, Cancel Booking"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
           <Link
             href={`/studio-explore/${booking.studioId ?? booking._id}`}
