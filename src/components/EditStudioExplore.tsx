@@ -266,6 +266,21 @@ const EditStudioExplore = ({ studio, onSaved }: EditStudioExploreProps) => {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
+        // Zod failures (400) come back as { message, errors: { field: [msg] } }
+        // — surface them on the matching inputs instead of one blob.
+        if (data?.errors && typeof data.errors === "object") {
+          const serverErrors: FormErrors = {};
+          for (const [field, messages] of Object.entries(data.errors)) {
+            const first = Array.isArray(messages) ? messages[0] : messages;
+            if (first) serverErrors[field as keyof FormValues] = String(first);
+          }
+          if (Object.keys(serverErrors).length > 0) {
+            setErrors(serverErrors);
+            throw new Error(
+              "Please fix the highlighted fields and try again.",
+            );
+          }
+        }
         throw new Error(data?.message ?? "Failed to update studio.");
       }
 

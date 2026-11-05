@@ -67,7 +67,7 @@ export async function getJwtUser(request: Request): Promise<JwtUser | null> {
     const { payload } = await auth.api.verifyJWT({ body: { token } })
     if (!payload?.sub) return null
 
-    // `definePayload` in lib/auth.ts puts the user's email/name in the token.
+    // `definePayload` in `lib/auth.ts` puts the user's email/name in the token.
     const email = typeof payload.email === "string" ? payload.email : null
     if (!email) return null
 

@@ -18,8 +18,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 
-const DeleteStudioDialog = () => {
-  const { id } = useParams<{ id: string }>();
+type DeleteStudioDialogProps = {
+  /** Backing studio id/slug the parent knows about; falls back to URL param. */
+  studioId?: string;
+};
+
+const DeleteStudioDialog = ({ studioId }: DeleteStudioDialogProps) => {
+  const params = useParams<{ id: string }>();
+  // Prefer the explicit prop — StudioDetails hands us the studio's id/slug;
+  // dropping to the route param keeps older call sites working.
+  const id = studioId ?? params.id;
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
 

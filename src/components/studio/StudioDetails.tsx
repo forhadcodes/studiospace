@@ -30,6 +30,8 @@ export interface Studio {
   gallery?: string[];
   amenities?: string[];
   overview: string;
+  /** Owner e-mail from Mongo — needed to gate edit/delete on ownership. */
+  ownerEmail?: string;
   rating?: number;
   reviewCount?: number;
 }
@@ -46,12 +48,26 @@ function formatCategory(cat: string): string {
 
 // Client-side presentation layer. The server page fetches the studio (and the
 // JWT) and passes it in, so this file never touches next/headers or auth.
-export default function StudioDetails({ studio }: { studio: Studio }) {
+export default function StudioDetails({
+  studio,
+  viewerEmail,
+}: {
+  studio: Studio;
+  /** Signed-in viewer's e-mail (null when anonymous or session unavailable). */
+  viewerEmail?: string | null;
+}) {
   const router = useRouter();
 
   const amenities = Array.isArray(studio.amenities) ? studio.amenities : [];
   const rating = studio.rating ? Number(studio.rating) : 0;
   const reviewCount = studio.reviewCount ? Number(studio.reviewCount) : 0;
+
+  // Edit/delete are owner-only: the API enforces it (403) and we hide the
+  // buttons up front so users don't discover it via an error.
+  const canManage =
+    Boolean(viewerEmail) &&
+    Boolean(studio.ownerEmail) &&
+    studio.ownerEmail!.toLowerCase() === viewerEmail!.toLowerCase();
 
   // The edit dialog saves through /api/studios/:id; refresh the server
   // component so it re-fetches the updated studio.
@@ -72,12 +88,14 @@ export default function StudioDetails({ studio }: { studio: Studio }) {
             Back to Studios
           </Link>
 
-          {/* Edit + Delete */}
-          <div className="flex items-center gap-2">
-            <EditStudioExplore studio={studio} onSaved={refreshStudio} />
+          {/* Edit + Delete — owner only (the APIs enforce this too) */}
+          {canManage && (
+            <div className="flex items-center gap-2">
+              <EditStudioExplore studio={studio} onSaved={refreshStudio} />
 
-            <DeleteStudioDialog />
-          </div>
+              <DeleteStudioDialog studioId={studio._id} />
+            </div>
+          )}
         </div>
 
         {/* Hero image */}

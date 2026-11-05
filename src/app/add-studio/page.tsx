@@ -23,12 +23,10 @@ import {
   CATEGORY_SLUGS,
   type CategorySlug,
 } from "@/lib/constants";
-import { API_URL } from "@/lib/api-url";
 
 
-// The backend must share the page's host (localhost vs 127.0.0.1 counts as a
-// different host), otherwise the browser won't send the HTTPOnly JWT cookie
-// that it verifies. Configure the origin via NEXT_PUBLIC_API_URL.
+// Submits to the same-origin `/api/studios` route, which stamps the studio's
+// owner from the verified JWT cookie.
 
 const FIELD_CLASS = "h-10 text-sm";
 const SELECT_FIELD_CLASS = "h-10 w-full";
@@ -186,11 +184,11 @@ export default function AddStudioPage() {
 
     setSubmitting(true)
     try {
-      // Single submit to the backend — payload typed properly.
-      const response = await fetch(`${API_URL}/add-studio`, {
+      // Same-origin POST to the Next.js API route — the browser automatically
+      // rides the HTTPOnly `studiospace_jwt` cookie along, which the route
+      // verifies to stamp the studio's owner.
+      const response = await fetch("/api/studios", {
         method: "POST",
-        // Sends the HTTPOnly `studiospace_jwt` cookie that the server verifies.
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: values.title.trim(),
@@ -201,9 +199,8 @@ export default function AddStudioPage() {
           securityDeposit: Number(values.securityDeposit),
           maxCapacity: Number(values.maxCapacity),
           image: values.image.trim(),
-          // backend keeps these as comma-separated strings
-          gallery: values.gallery.trim(),
-          amenities: values.amenities.trim(),
+          gallery: parseList(values.gallery),
+          amenities: parseList(values.amenities),
           overview: values.overview.trim(),
         }),
       })

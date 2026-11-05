@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import StudioDetails, {
   type Studio,
 } from "@/components/studio/StudioDetails";
-import { API_URL } from "@/lib/api-url";
 import { auth } from "@/lib/auth";
 import { getStudioById } from "@/lib/studios";
 
@@ -17,9 +16,6 @@ export const metadata: Metadata = {
 
 /* ---------- Types ---------- */
 
-// Accepts both shapes we may receive:
-// - Express:   { _id, title, city, address, ... } (flat)
-// - Next API:  { slug, title, location: { address, city }, ... } (nested)
 type RawStudio = {
   _id?: unknown;
   slug?: string;
@@ -35,6 +31,8 @@ type RawStudio = {
   gallery?: string[] | string;
   amenities?: string[] | string;
   overview?: string;
+  ownerEmail?: string;
+  ownerName?: string;
   rating?: number;
   reviewCount?: number;
 };
@@ -53,7 +51,7 @@ function toStringList(value: unknown): string[] {
   return [];
 }
 
-// Flatten either response shape into the flat shape the UI expects.
+// Flatten the studio document into the flat shape the UI expects.
 function normalizeStudio(raw: RawStudio, fallbackId: string): Studio {
   const location = raw.location;
 
@@ -70,45 +68,21 @@ function normalizeStudio(raw: RawStudio, fallbackId: string): Studio {
     gallery: toStringList(raw.gallery),
     amenities: toStringList(raw.amenities),
     overview: raw.overview ?? "",
+    ownerEmail: raw.ownerEmail ?? "",
     rating: Number(raw.rating ?? 0),
     reviewCount: Number(raw.reviewCount ?? 0),
   };
 }
 
 /**
- * Server-only: BetterAuth issues the JWT from the session cookie. Never put
- * this in the client component — `next/headers` and `auth` only run on the
- * server.
+ * Server-only: the BetterAuth session never runs in a client component.
+ * We only need the e-mail to decide whether the viewer may edit/delete.
  */
-async function getJwtToken(): Promise<string | null> {
+async function getViewerEmail(): Promise<string | null> {
   try {
-    const token = await auth.api.getToken({ headers: await headers() });
-    return token?.token ?? null;
+    const session = await auth.api.getSession({ headers: await headers() });
+    return session?.user?.email ?? null;
   } catch {
-    // Logged-out visitors can still browse; the backend just gets no token.
-    return null;
-  }
-}
-
-/** Fetches from the Express backend, forwarding the JWT so it knows the user. */
-async function fetchBackendStudio(
-  id: string,
-  jwtToken: string | null,
-): Promise<Studio | null> {
-  try {
-    const res = await fetch(`${API_URL}/studio-explore/${id}`, {
-      headers: jwtToken ? { authorization: `Bearer ${jwtToken}` } : undefined,
-      cache: "no-store",
-    });
-
-    if (!res.ok) return null;
-
-    const payload = (await res.json()) as RawStudio | { studio?: RawStudio };
-    const raw = (payload as { studio?: RawStudio }).studio ?? (payload as RawStudio);
-
-    return raw ? normalizeStudio(raw, id) : null;
-  } catch {
-    // Backend down/unreachable — the caller falls back to the local API.
     return null;
   }
 }
@@ -122,21 +96,17 @@ export default async function StudioDetailsPage({
 }) {
   const { id } = await params;
 
-  // Run the session/JWT lookup and the slug-friendly local lookup in parallel.
-  const [jwtToken, localStudio] = await Promise.all([
-    getJwtToken(),
+  // Local Mongo lookup accepts both ObjectId and slug; the viewer e-mail
+  // decides whether edit/delete controls render at all.
+  const [viewerEmail, studioDoc] = await Promise.all([
+    getViewerEmail(),
     getStudioById(id),
   ]);
-
-  // Prefer the Express backend (with JWT); fall back to the app's Mongo API.
-  const backendStudio = await fetchBackendStudio(id, jwtToken);
-  const studio =
-    backendStudio ??
-    (localStudio ? normalizeStudio(localStudio, id) : null);
+  const studio = studioDoc ? normalizeStudio(studioDoc, id) : null;
 
   /* ---------- Not found ---------- */
   // Renders the custom app/not-found.tsx (with the studio illustration).
   if (!studio) notFound();
 
-  return <StudioDetails studio={studio} />;
+  return <StudioDetails studio={studio} viewerEmail={viewerEmail} />;
 }
