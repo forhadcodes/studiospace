@@ -1,9 +1,12 @@
 import { connection } from "next/server";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { SearchIcon, SearchXIcon } from "lucide-react";
 import { cn } from "cn";
 
+import { auth } from "@/lib/auth";
 import { EmptyState } from "@/components/empty-state";
+import ExploreCardActions from "@/components/studio/ExploreCardActions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -34,7 +37,13 @@ const IconShield = () => (
 );
 
 /* ---------- Card ---------- */
-function StudioCard({ studio }: { studio: Studio }) {
+function StudioCard({
+  studio,
+  viewerEmail,
+}: {
+  studio: Studio;
+  viewerEmail?: string | null;
+}) {
   const amenities = Array.isArray(studio.amenities) ? studio.amenities : [];
 
   return (
@@ -50,6 +59,8 @@ function StudioCard({ studio }: { studio: Studio }) {
         <span className="absolute left-3 top-3 rounded-md bg-black/70 px-2.5 py-1 text-xs font-medium text-white backdrop-blur">
           {categoryLabel(studio.category)}
         </span>
+        {/* Owner-only Edit/Delete in the card's top-right (renders null otherwise) */}
+        <ExploreCardActions studio={studio} viewerEmail={viewerEmail} />
       </div>
 
       {/* Content */}
@@ -176,6 +187,12 @@ const StudioExplorePage = async ({
     limit: 48,
   });
 
+  // Owner e-mail decides whether cards render their Edit/Delete controls.
+  const viewerEmail = await auth.api
+    .getSession({ headers: await headers() })
+    .then((s) => s?.user?.email ?? null)
+    .catch(() => null);
+
   const hasFilters = Boolean(query || category);
 
   const emptyDescription = hasFilters
@@ -267,7 +284,11 @@ const StudioExplorePage = async ({
         {studios.length > 0 ? (
           <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {studios.map((studio) => (
-              <StudioCard key={studio.slug} studio={studio} />
+              <StudioCard
+                key={studio.slug}
+                studio={studio}
+                viewerEmail={viewerEmail}
+              />
             ))}
           </div>
         ) : (

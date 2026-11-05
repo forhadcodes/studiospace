@@ -22,6 +22,8 @@ interface DeleteListingDialogProps {
   studioTitle: string;
   /** Called after the studio was deleted so the page can drop the row. */
   onDeleted: (id: string) => void;
+  /** Compact icon-only trigger (used on explore cards). */
+  iconTrigger?: boolean;
 }
 
 // Confirmation modal for deleting one of the user's OWN studios.
@@ -30,6 +32,7 @@ export default function DeleteListingDialog({
   studioId,
   studioTitle,
   onDeleted,
+  iconTrigger,
 }: DeleteListingDialogProps) {
   const [deleting, setDeleting] = useState(false);
 
@@ -68,10 +71,16 @@ export default function DeleteListingDialog({
         render={
           <Button
             variant="outline"
-            className="border-red-600/30 text-red-600 dark:text-red-500 hover:bg-red-600/10 hover:text-red-600"
+            size={iconTrigger ? "icon-sm" : undefined}
+            title={iconTrigger ? "Delete studio" : undefined}
+            className={
+              iconTrigger
+                ? "border-red-600/30 bg-card/90 text-red-600 backdrop-blur hover:bg-red-600/10 hover:text-red-600"
+                : "border-red-600/30 text-red-600 dark:text-red-500 hover:bg-red-600/10 hover:text-red-600"
+            }
           >
-            <Trash2Icon data-icon="inline-start" />
-            Delete
+            <Trash2Icon data-icon={iconTrigger ? undefined : "inline-start"} />
+            {iconTrigger ? undefined : "Delete"}
           </Button>
         }
       />

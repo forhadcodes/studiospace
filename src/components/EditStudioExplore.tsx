@@ -86,6 +86,8 @@ type EditStudioExploreProps = {
   onSaved?: () => void;
   /** Opens the dialog immediately (used by the /studio-explore/edit/[id] page). */
   defaultOpen?: boolean;
+  /** Compact icon-only trigger (used on explore cards). */
+  iconTrigger?: boolean;
 };
 
 /* ---------- helpers ---------- */
@@ -208,7 +210,7 @@ const ReviewField = ({
 
 /* ---------- component ---------- */
 
-const EditStudioExplore = ({ studio, onSaved, defaultOpen }: EditStudioExploreProps) => {
+const EditStudioExplore = ({ studio, onSaved, defaultOpen, iconTrigger }: EditStudioExploreProps) => {
   const [open, setOpen] = useState(Boolean(defaultOpen));
   const [values, setValues] = useState<FormValues>(() => studioToValues(studio));
   const [errors, setErrors] = useState<FormErrors>({});
@@ -310,9 +312,16 @@ const EditStudioExplore = ({ studio, onSaved, defaultOpen }: EditStudioExplorePr
       {!defaultOpen && (
         <DialogTrigger
           render={
-            <Button variant="outline" className="text-foreground">
-              <PencilIcon data-icon="inline-start" />
-              Edit
+            <Button
+              variant="outline"
+              size={iconTrigger ? "icon-sm" : undefined}
+              title={iconTrigger ? "Edit studio" : undefined}
+              className={
+                iconTrigger ? "bg-card/90 backdrop-blur" : "text-foreground"
+              }
+            >
+              <PencilIcon data-icon={iconTrigger ? undefined : "inline-start"} />
+              {iconTrigger ? undefined : "Edit"}
             </Button>
           }
         />
